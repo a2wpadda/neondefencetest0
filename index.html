@@ -74,6 +74,7 @@
             flex-direction: column;
             gap: 10px;
             width: 120px;
+            padding-top: 45px; /* Offset for music btn */
         }
         #score-display {
             font-size: 1.8rem;
@@ -166,7 +167,7 @@
             transform: translate(-50%, -50%);
         }
 
-        #shop, #barricade-shop, #leaderboard-modal, #tutorial-modal, #index-modal, #crates-modal, #customise-modal, #roll-modal {
+        #shop, #barricade-shop, #leaderboard-modal, #tutorial-modal, #index-modal, #crates-modal, #customise-modal, #roll-modal, #scratchers-modal {
             position: absolute;
             background: rgba(0, 0, 0, 0.96);
             backdrop-filter: blur(25px);
@@ -231,15 +232,14 @@
             flex-shrink: 0;
             text-transform: uppercase;
         }
-        .btn:disabled { background: #1a1a1a; color: #444; border: 1px solid #333; cursor: not-allowed; }
+        .btn:disabled { background: #1a1a1a !important; color: #444 !important; border: 1px solid #333 !important; cursor: not-allowed !important; box-shadow: none !important; }
         .btn:active:not(:disabled) { transform: scale(0.94); box-shadow: 0 0 30px rgba(0, 255, 255, 0.4); }
         .btn-secondary { background: transparent; color: #0ff; border: 2px solid #0ff; }
         
         .btn-buy { padding: 0.75rem 1.25rem; font-size: 1.1rem; min-width: 100px; }
         .btn-equip { background: transparent; color: #0ff; border: 2px solid #0ff; padding: 0.5rem 1rem; font-size: 0.9rem; }
-        .btn-equipped { background: #00ff00; color: #000; border: 2px solid #00ff00; padding: 0.5rem 1rem; font-size: 0.9rem; }
+        .btn-equipped { background: #0ff; color: #000; border: 2px solid #0ff; padding: 0.5rem 1rem; font-size: 0.9rem; box-shadow: 0 0 15px rgba(0, 255, 255, 0.4); cursor: default; }
 
-        /* The New Polished Upgrade Card Aesthetic */
         .upgrade-row {
             position: relative;
             display: flex;
@@ -298,7 +298,6 @@
         #wave-msg.show { opacity: 1; }
         .modal-title { font-size: 2.2rem; font-weight: 900; letter-spacing: -1px; }
 
-        /* The New Polished SVG Exit Button */
         .btn-exit {
             position: absolute;
             top: 20px; 
@@ -344,6 +343,29 @@
             z-index: 10;
         }
         #btn-pause:active { transform: scale(0.9); }
+        
+        #btn-music {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid #0ff;
+            color: #0ff;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            font-weight: 900;
+            font-size: 1.2rem;
+            cursor: pointer;
+            pointer-events: auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.2s;
+            z-index: 50;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.2);
+        }
+        #btn-music:active { transform: scale(0.9); }
         
         #btn-emp-mobile {
             position: absolute;
@@ -395,7 +417,6 @@
             transform: scale(1);
         }
         
-        /* Customise Color Preview Box */
         .color-preview {
             width: 24px;
             height: 24px;
@@ -403,9 +424,55 @@
             border: 2px solid rgba(255,255,255,0.2);
             flex-shrink: 0;
         }
+
+        /* Scratchers UI Styles */
+        .scratcher-board-container {
+            cursor: url('data:image/svg+xml;utf8,<svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="%23fbbf24" stroke="%23f59e0b" stroke-width="2"/><text x="12" y="16" font-size="12" font-family="Arial" font-weight="900" fill="%23b45309" text-anchor="middle">F</text></svg>') 16 16, auto;
+        }
+        .scratch-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            position: relative;
+            background: #111;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
+        }
+        .scratch-cover {
+            position: absolute;
+            inset: 0;
+            z-index: 10;
+            border-radius: 50%;
+            transition: opacity 0.2s ease;
+        }
+        .wager-btn {
+            background: #1a1a1a; border: 2px solid #333; color: #888;
+            border-radius: 8px; font-weight: 900; transition: all 0.2s;
+            cursor: pointer;
+        }
+        .wager-btn.selected {
+            background: #fbbf24; border-color: #fbbf24; color: #000; box-shadow: 0 0 15px rgba(251, 191, 36, 0.4);
+        }
+        /* Custom Input styling hiding arrows */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
     </style>
 </head>
 <body>
+
+    <button id="btn-music" onclick="toggleMusic()">
+        <svg id="icon-music-on" class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.236l8-1.6v7.478A4.369 4.369 0 0015 13c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z"/></svg>
+        <svg id="icon-music-off" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"></path><path d="M6 15H3c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3v-3z"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+    </button>
 
     <div id="game-container">
         <canvas id="gameCanvas"></canvas>
@@ -491,7 +558,7 @@
                     <div id="unlock-instruction-crates" class="unlock-hint">Reach Wave 5 to unlock</div>
 
                     <div class="grid grid-cols-2 gap-2 mt-2">
-                        <button class="btn btn-secondary text-xs sm:text-sm !border-[#ff0055] !text-[#ff0055] whitespace-nowrap overflow-hidden text-ellipsis" onclick="toggleModal('index-modal', true)">THREAT INDEX</button>
+                        <button class="btn btn-secondary text-xs sm:text-sm !border-[#ff0055] !text-[#ff0055] whitespace-nowrap overflow-hidden text-ellipsis" onclick="toggleModal('index-modal', true)">ENEMY INDEX</button>
                         <button class="btn btn-secondary text-xs sm:text-sm whitespace-nowrap overflow-hidden text-ellipsis" onclick="toggleModal('leaderboard-modal', true)">LEADERBOARD</button>
                     </div>
                 </div>
@@ -524,13 +591,13 @@
                 </div>
             </div>
 
-            <!-- Threat Index Menu -->
+            <!-- Enemy Index Menu -->
             <div id="index-modal" class="hidden">
                 <button class="btn-exit" onclick="toggleModal('index-modal', false)">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </button>
                 <div class="border-b-2 border-white/10 pb-4 mt-8 text-left">
-                    <h1 class="modal-title !text-[#ff0055]" style="text-shadow: 0 0 15px #ff0055;">THREAT INDEX</h1>
+                    <h1 class="modal-title !text-[#ff0055]" style="text-shadow: 0 0 15px #ff0055;">ENEMY INDEX</h1>
                     <p class="text-gray-500 text-sm font-bold uppercase tracking-widest">Classified Enemy Intelligence</p>
                 </div>
                 
@@ -576,7 +643,7 @@
                         </div>
                     </div>
                     <div class="bg-[#0a0a0a] p-4 rounded-2xl border border-white/5 flex items-center gap-4 hidden shadow-lg" id="threat-phantom">
-                        <div class="w-8 h-8 rounded-full bg-[rgba(160,32,240,0.3)] border-2 border-[#a020f0] flex-shrink-0" style="filter: drop-shadow(0px 0px 8px #a020f0);"></div>
+                        <div class="w-6 h-6 bg-[rgba(160,32,240,0.3)] border-2 border-[#a020f0] flex-shrink-0 ml-1 mr-1" style="transform: rotate(45deg); filter: drop-shadow(0px 0px 8px #a020f0);"></div>
                         <div>
                             <h3 class="font-black text-[#a020f0] text-lg">Phantom (Wave 12)</h3>
                             <p class="text-gray-400 text-xs">Ethereal state. Phases entirely through shields unless dangerously close to the core.</p>
@@ -673,6 +740,9 @@
                 </div>
                 
                 <div class="shop-scroll pb-6">
+                    <button id="btn-open-scratchers" class="btn w-full mb-1 !bg-[#a855f7] !text-white shadow-[0_0_15px_rgba(168,85,247,0.4)] transition-all" onclick="toggleModal('scratchers-modal', true)">NEON SCRATCHERS AND MORE</button>
+                    <div id="unlock-instruction-scratchers" class="unlock-hint mb-5">Unlock EMP Cooldown to access</div>
+
                     <div class="upgrade-row">
                         <div class="upgrade-info">
                             <h3>Barricades <span id="owned-barricades-badge" class="lvl-badge">0 / 10</span></h3>
@@ -698,6 +768,69 @@
                     </div>
 
                     <div class="p-8 text-center text-gray-500 text-sm font-bold italic opacity-60">1 Barricade regenerates per wave. Upgrade supply to increase.</div>
+                </div>
+            </div>
+
+            <!-- Scratchers Menu -->
+            <div id="scratchers-modal" class="hidden">
+                <button class="btn-exit" onclick="toggleModal('scratchers-modal', false)">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+                <div class="flex justify-between items-end mb-4 border-b-2 border-white/10 pb-4 mt-12 text-left">
+                    <div>
+                        <h1 class="modal-title glow-text" style="color: #a855f7; text-shadow: 0 0 20px #a855f7;">SCRATCHERS</h1>
+                        <p class="text-gray-500 text-sm font-bold uppercase tracking-widest">Chance & Fortune</p>
+                    </div>
+                    <div class="flux-text font-black text-3xl mb-1"><span id="scratchers-flux">0</span> F</div>
+                </div>
+                
+                <div class="shop-scroll pb-6 pt-2 hide-scrollbar">
+                    
+                    <div id="scratcher-setup-ui">
+                        <p class="text-gray-400 text-xs font-bold mb-3 uppercase tracking-widest">Enter Wager Amount</p>
+                        <div class="flex gap-2 justify-center mb-6 items-center">
+                            <button class="wager-btn py-2 px-3 text-xs" onclick="setScratcherWager(10)">MIN</button>
+                            <input type="number" id="custom-wager-input" class="wager-btn !bg-black !text-[#0ff] text-center w-24 outline-none border-2 border-[#0ff] shadow-[0_0_10px_rgba(0,255,255,0.2)] py-2 text-lg font-black" placeholder="AMT" value="10" oninput="setScratcherWager(this.value)">
+                            <button class="wager-btn py-2 px-3 text-xs" onclick="setScratcherWager('max')">MAX</button>
+                        </div>
+                        <button id="btn-buy-ticket" class="btn w-full !bg-[#fbbf24] !text-black shadow-[0_0_15px_rgba(251,191,36,0.4)]" onclick="buyScratcherTicket()">BUY TICKET (<span id="ticket-cost-display">10</span> F)</button>
+                    </div>
+
+                    <div id="scratcher-play-ui" class="hidden flex flex-col items-center w-full relative">
+                        <div class="flex justify-between w-full text-[0.65rem] font-bold text-gray-400 px-4 mb-2 tracking-widest">
+                            <span>MATCH 3: <span class="text-[#0ff]">1.5x</span></span>
+                            <span>MATCH 4: <span class="text-[#0ff]">2x</span></span>
+                            <span>MATCH 5: <span class="text-[#0ff]">3x</span></span>
+                        </div>
+                        
+                        <div id="scratch-board" class="scratcher-board-container relative w-[260px] h-[160px] bg-[#0a0a0a] rounded-xl border-2 border-gray-800 shadow-[0_0_20px_rgba(168,85,247,0.2)] flex flex-col justify-center items-center gap-4 touch-none">
+                            <div class="flex gap-4">
+                                <div class="scratch-circle" data-idx="0"><canvas class="scratch-cover absolute inset-0 z-10" width="60" height="60" data-idx="0"></canvas><div id="sc-sym-0" class="pointer-events-none"></div></div>
+                                <div class="scratch-circle" data-idx="1"><canvas class="scratch-cover absolute inset-0 z-10" width="60" height="60" data-idx="1"></canvas><div id="sc-sym-1" class="pointer-events-none"></div></div>
+                                <div class="scratch-circle" data-idx="2"><canvas class="scratch-cover absolute inset-0 z-10" width="60" height="60" data-idx="2"></canvas><div id="sc-sym-2" class="pointer-events-none"></div></div>
+                            </div>
+                            <div class="flex gap-4">
+                                <div class="scratch-circle" data-idx="3"><canvas class="scratch-cover absolute inset-0 z-10" width="60" height="60" data-idx="3"></canvas><div id="sc-sym-3" class="pointer-events-none"></div></div>
+                                <div class="scratch-circle" data-idx="4"><canvas class="scratch-cover absolute inset-0 z-10" width="60" height="60" data-idx="4"></canvas><div id="sc-sym-4" class="pointer-events-none"></div></div>
+                            </div>
+                        </div>
+                        
+                        <!-- NEW BONUS INFO BOX -->
+                        <div class="mt-4 bg-[#0a0a0a] rounded-xl border border-white/5 p-4 w-full text-left shadow-lg">
+                            <p class="text-gray-500 text-[0.65rem] font-bold uppercase tracking-widest mb-3 text-center border-b border-white/10 pb-2">Symbol Bonus Multiplier (Added to Base)</p>
+                            <div class="flex justify-between items-center text-[0.65rem] font-bold text-white">
+                                <div class="flex flex-col items-center gap-1.5"><div class="w-4 h-4 bg-[#ff0055] rounded-sm shadow-[0_0_5px_#ff0055]"></div><span>+0x</span></div>
+                                <div class="flex flex-col items-center gap-1.5"><div class="w-4 h-4 bg-[#ffff00] shadow-[0_0_5px_#ffff00]" style="clip-path:polygon(50% 0%,0% 100%,100% 100%)"></div><span>+0.5x</span></div>
+                                <div class="flex flex-col items-center gap-1.5"><div class="w-4 h-4 rounded-full border border-white bg-[#00ffff] shadow-[0_0_5px_#00ffff]"></div><span>+1.0x</span></div>
+                                <div class="flex flex-col items-center gap-1.5"><div class="w-4 h-4 bg-[#ff8800] shadow-[0_0_5px_#ff8800]" style="clip-path:polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)"></div><span>+1.5x</span></div>
+                                <div class="flex flex-col items-center gap-1.5"><div class="w-4 h-4 bg-[rgba(160,32,240,0.5)] border border-[#a020f0] shadow-[0_0_5px_#a020f0]" style="transform:rotate(45deg)"></div><span>+2.0x</span></div>
+                            </div>
+                        </div>
+
+                        <div id="scratcher-result" class="text-xl font-black mt-4 h-8 text-center transition-all"></div>
+                        <button id="btn-play-again" class="btn mt-2 hidden w-full !bg-gray-800 !text-white" onclick="resetScratcher()">PLAY AGAIN</button>
+                    </div>
+
                 </div>
             </div>
             
@@ -768,17 +901,17 @@
 
             <!-- Game Over -->
             <div id="game-over" class="hidden">
-                <h1 class="text-3xl font-black text-red-500 mb-1">BREACHED</h1>
-                <p class="text-gray-400 text-xs font-bold mb-6 uppercase tracking-widest">WAVE REGRESSION ACTIVE</p>
-                <div class="mb-6">
-                    <div class="text-xl font-black">EARNED: <span id="final-score" class="flux-text">0</span></div>
-                    <div class="text-xs text-gray-500 font-bold">Retrying Wave <span id="restart-wave-num">1</span></div>
+                <h1 class="text-4xl font-black text-red-500 mb-1" style="text-shadow: 0 0 20px #ef4444;">BREACHED</h1>
+                <p class="text-gray-400 text-xs font-bold mb-4 uppercase tracking-widest">WAVE REGRESSION ACTIVE</p>
+                <div class="mb-4">
+                    <div class="text-2xl font-black">EARNED: <span id="final-score" class="flux-text">0</span></div>
+                    <div class="text-xs text-gray-500 font-bold tracking-widest mt-1">RETRYING WAVE <span id="restart-wave-num" class="text-white">1</span></div>
                 </div>
                 
                 <div id="submit-status" class="text-xs font-bold h-4 mb-4"></div>
 
                 <div class="flex flex-col gap-3">
-                    <button class="btn" onclick="startGame(true)">RETRY</button>
+                    <button class="btn !bg-red-500 !text-black" onclick="startGame(true)">RETRY MISSION</button>
                     
                     <div class="grid grid-cols-2 gap-2">
                         <button class="btn btn-secondary text-sm" onclick="toggleModal('shop', true)">UPGRADES</button>
@@ -793,12 +926,12 @@
                     <div id="unlock-instruction-crates-breached" class="unlock-hint">Reach Wave 5 to unlock</div>
 
                     <div class="grid grid-cols-2 gap-2 mt-2">
-                        <button class="btn btn-secondary text-xs sm:text-sm !border-[#ff0055] !text-[#ff0055] whitespace-nowrap overflow-hidden text-ellipsis" onclick="toggleModal('index-modal', true)">THREAT INDEX</button>
+                        <button class="btn btn-secondary text-xs sm:text-sm !border-[#ff0055] !text-[#ff0055] whitespace-nowrap overflow-hidden text-ellipsis" onclick="toggleModal('index-modal', true)">ENEMY INDEX</button>
                         <button class="btn btn-secondary text-xs sm:text-sm whitespace-nowrap overflow-hidden text-ellipsis" onclick="toggleModal('leaderboard-modal', true)">LEADERBOARD</button>
                     </div>
                 </div>
                 <!-- Home Button -->
-                <button class="mt-6 text-xs text-red-500 font-bold tracking-widest uppercase underline pointer-events-auto transition-colors" onclick="toggleModal('menu', true)">RETURN TO HOME</button>
+                <button class="mt-6 text-xs text-gray-500 font-bold tracking-widest uppercase hover:text-white transition-colors pointer-events-auto" onclick="toggleModal('menu', true)">RETURN TO HOME</button>
             </div>
         </div>
     </div>
@@ -855,7 +988,8 @@
             bossesDefeated: 0, maxPerfectWave: 0, barricadesBuilt: 0, fastestWaveTime: 9999,
             tutorialCompleted: false, highestWaveReached: 1,
             unlockedSkins: { core: ['default'], shield: ['default'], enemies: ['default'] },
-            equippedSkins: { core: 'default', shield: 'default', enemies: 'default' }
+            equippedSkins: { core: 'default', shield: 'default', enemies: 'default' },
+            musicEnabled: true
         };
 
         // Customise System Data
@@ -903,16 +1037,17 @@
         };
 
         const CRATES = [
-            { id: 'bronze', name: 'BRONZE CRATE', cost: 200, color: '#cd7f32', rates: { 'Common': 60, 'Rare': 30, 'Epic': 10, 'Legendary': 0, 'Mythic': 0 } },
-            { id: 'silver', name: 'SILVER CRATE', cost: 600, color: '#c0c0c0', rates: { 'Common': 40, 'Rare': 40, 'Epic': 20, 'Legendary': 0, 'Mythic': 0 } },
-            { id: 'gold', name: 'GOLD CRATE', cost: 1500, color: '#ffd700', rates: { 'Common': 10, 'Rare': 50, 'Epic': 40, 'Legendary': 0, 'Mythic': 0 } },
-            { id: 'platinum', name: 'PLATINUM CRATE', cost: 4000, color: '#e5e4e2', rates: { 'Common': 0, 'Rare': 0, 'Epic': 40, 'Legendary': 60, 'Mythic': 0 } },
-            { id: 'radiant', name: 'RADIANT CRATE', cost: 10000, color: '#0ff', rates: { 'Common': 0, 'Rare': 0, 'Epic': 10, 'Legendary': 60, 'Mythic': 30 } }
+            { id: 'bronze', name: 'BRONZE CRATE', cost: 50, color: '#cd7f32', rates: { 'Common': 60, 'Rare': 30, 'Epic': 10, 'Legendary': 0, 'Mythic': 0 } },
+            { id: 'silver', name: 'SILVER CRATE', cost: 300, color: '#c0c0c0', rates: { 'Common': 40, 'Rare': 40, 'Epic': 20, 'Legendary': 0, 'Mythic': 0 } },
+            { id: 'gold', name: 'GOLD CRATE', cost: 750, color: '#ffd700', rates: { 'Common': 10, 'Rare': 50, 'Epic': 40, 'Legendary': 0, 'Mythic': 0 } },
+            { id: 'platinum', name: 'PLATINUM CRATE', cost: 2000, color: '#e5e4e2', rates: { 'Common': 0, 'Rare': 0, 'Epic': 40, 'Legendary': 60, 'Mythic': 0 } },
+            { id: 'radiant', name: 'RADIANT CRATE', cost: 5000, color: '#0ff', rates: { 'Common': 0, 'Rare': 0, 'Epic': 10, 'Legendary': 60, 'Mythic': 30 } }
         ];
 
         function initializeSkinsData() {
             if (!saveData.unlockedSkins) saveData.unlockedSkins = { core: ['default'], shield: ['default'], enemies: ['default'] };
             if (!saveData.equippedSkins) saveData.equippedSkins = { core: 'default', shield: 'default', enemies: 'default' };
+            if (saveData.musicEnabled === undefined) saveData.musicEnabled = true;
         }
 
         const canvas = document.getElementById('gameCanvas');
@@ -945,6 +1080,7 @@
         const cratesModal = document.getElementById('crates-modal');
         const customiseModal = document.getElementById('customise-modal');
         const rollModal = document.getElementById('roll-modal');
+        const scratchersModal = document.getElementById('scratchers-modal');
         
         let width, height, centerX, centerY;
         let gameActive = false;
@@ -984,17 +1120,75 @@
 
         let audioCtx;
         let audioInitialized = false;
+        let musicInterval = null;
+        let musicNoteIdx = 0;
+        const musicSequence = [110, 110, 146.83, 110, 82.41, 82.41, 110, 98]; 
 
         function initAudio() {
             if (!audioInitialized) {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 if (audioCtx.state === 'suspended') audioCtx.resume();
                 audioInitialized = true;
+                updateMusicUI();
+            }
+        }
+        
+        function playMusicStep() {
+            if (!saveData.musicEnabled || !audioCtx || audioCtx.state !== 'running') return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            const filter = audioCtx.createBiquadFilter();
+            
+            osc.type = 'sawtooth';
+            osc.frequency.value = musicSequence[musicNoteIdx];
+            
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(400, audioCtx.currentTime);
+            filter.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.2);
+            
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.25);
+            
+            osc.start(audioCtx.currentTime);
+            osc.stop(audioCtx.currentTime + 0.25);
+            
+            musicNoteIdx = (musicNoteIdx + 1) % musicSequence.length;
+        }
+
+        function updateMusicUI() {
+            if (saveData.musicEnabled) {
+                document.getElementById('icon-music-on').classList.remove('hidden');
+                document.getElementById('icon-music-off').classList.add('hidden');
+                document.getElementById('btn-music').style.color = '#0ff';
+                document.getElementById('btn-music').style.borderColor = '#0ff';
+                if (audioInitialized && !musicInterval) {
+                    musicInterval = setInterval(playMusicStep, 250);
+                }
+            } else {
+                document.getElementById('icon-music-on').classList.add('hidden');
+                document.getElementById('icon-music-off').classList.remove('hidden');
+                document.getElementById('btn-music').style.color = '#ff0055';
+                document.getElementById('btn-music').style.borderColor = '#ff0055';
+                if (musicInterval) {
+                    clearInterval(musicInterval);
+                    musicInterval = null;
+                }
             }
         }
 
+        window.toggleMusic = () => {
+            initAudio();
+            saveData.musicEnabled = !saveData.musicEnabled;
+            saveGame();
+            updateMusicUI();
+        };
+
         function playSound(type) {
-            if (!audioCtx) return;
+            if (!audioCtx || audioCtx.state !== 'running') return;
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.connect(gain);
@@ -1124,7 +1318,7 @@
                 currentActiveBarricades = saveData.barricadeTotal;
                 authModal.classList.add('hidden'); signOutBtn.classList.remove('hidden'); 
                 menu.classList.remove('hidden');
-                updateUI(); return;
+                updateUI(); updateMusicUI(); return;
             }
 
             if (!authReady) {
@@ -1161,7 +1355,7 @@
                         localStorage.setItem(STORAGE_KEY, JSON.stringify(saveData));
                         errEl.className = "text-xs text-green-400 font-bold h-4"; errEl.innerText = `WELCOME BACK, ${currentUsername}!`;
                         
-                        setTimeout(() => { authModal.classList.add('hidden'); signOutBtn.classList.remove('hidden'); menu.classList.remove('hidden'); updateUI(); }, 700);
+                        setTimeout(() => { authModal.classList.add('hidden'); signOutBtn.classList.remove('hidden'); menu.classList.remove('hidden'); updateUI(); updateMusicUI(); }, 700);
                     } else {
                         errEl.innerText = "CREATING PROFILE LOCALLY...";
                         currentUsername = usernameInput; currentPassword = passwordInput;
@@ -1176,7 +1370,7 @@
                         localStorage.setItem(STORAGE_KEY, JSON.stringify(saveData));
                         errEl.className = "text-xs text-cyan-400 font-bold h-4"; errEl.innerText = `NEW PROFILE CREATED!`;
                         
-                        setTimeout(() => { authModal.classList.add('hidden'); signOutBtn.classList.remove('hidden'); menu.classList.remove('hidden'); updateUI(); }, 700);
+                        setTimeout(() => { authModal.classList.add('hidden'); signOutBtn.classList.remove('hidden'); menu.classList.remove('hidden'); updateUI(); updateMusicUI(); }, 700);
                     }
                     return;
                 }
@@ -1200,7 +1394,7 @@
                         localStorage.setItem(STORAGE_KEY, JSON.stringify(saveData));
                         
                         errEl.className = "text-xs text-green-400 font-bold h-4"; errEl.innerText = `WELCOME BACK, ${currentUsername}!`;
-                        setTimeout(() => { authModal.classList.add('hidden'); signOutBtn.classList.remove('hidden'); menu.classList.remove('hidden'); updateUI(); }, 700);
+                        setTimeout(() => { authModal.classList.add('hidden'); signOutBtn.classList.remove('hidden'); menu.classList.remove('hidden'); updateUI(); updateMusicUI(); }, 700);
                     } else {
                         errEl.innerText = "CREATING SECURE PROFILE...";
                         currentUsername = usernameInput; currentPassword = passwordInput;
@@ -1214,7 +1408,7 @@
                         localStorage.setItem(STORAGE_KEY, JSON.stringify(saveData));
                         
                         errEl.className = "text-xs text-cyan-400 font-bold h-4"; errEl.innerText = `NEW SECURE PROFILE CREATED!`;
-                        setTimeout(() => { authModal.classList.add('hidden'); signOutBtn.classList.remove('hidden'); menu.classList.remove('hidden'); updateUI(); }, 700);
+                        setTimeout(() => { authModal.classList.add('hidden'); signOutBtn.classList.remove('hidden'); menu.classList.remove('hidden'); updateUI(); updateMusicUI(); }, 700);
                     }
                 }
             } catch (e) {
@@ -1244,6 +1438,7 @@
                 } catch (e) { console.error("Signout failed", e); }
             }
             updateUI();
+            updateMusicUI();
         }
 
         function updateEMPUI() {
@@ -1322,7 +1517,7 @@
         window.addEventListener('touchstart', (e) => { 
             initAudio();
             if (!gameActive || isPaused) return; 
-            if(e.target.tagName !== 'BUTTON' && e.target.tagName !== 'INPUT' && e.target.closest('svg') === null) { e.preventDefault(); handleInput(e); }
+            if(e.target.tagName !== 'BUTTON' && e.target.tagName !== 'INPUT' && e.target.closest('svg') === null && !e.target.closest('.scratch-circle')) { e.preventDefault(); handleInput(e); }
         }, { passive: false });
 
         window.addEventListener('keydown', (e) => {
@@ -1361,6 +1556,7 @@
             shopFluxEl.innerText = saveData.flux; 
             bShopFluxEl.innerText = saveData.flux;
             document.getElementById('crates-flux').innerText = saveData.flux;
+            document.getElementById('scratchers-flux').innerText = saveData.flux;
             ownedBarricadesBadge.innerText = `${saveData.barricadeTotal} / 10`;
             document.getElementById('start-wave-num').innerText = saveData.currentWave;
             
@@ -1494,6 +1690,21 @@
                 if (unlockInstructionCratesBreached) unlockInstructionCratesBreached.classList.remove('hidden');
             }
 
+            // Scratchers Unlock Logic
+            const btnScratchers = document.getElementById('btn-open-scratchers');
+            const unlockHintScratchers = document.getElementById('unlock-instruction-scratchers');
+            if (btnScratchers && unlockHintScratchers) {
+                if ((up.empCooldown || 0) >= 1) {
+                    btnScratchers.disabled = false;
+                    btnScratchers.innerText = "NEON SCRATCHERS AND MORE";
+                    unlockHintScratchers.classList.add('hidden');
+                } else {
+                    btnScratchers.disabled = true;
+                    btnScratchers.innerText = "LOCKED";
+                    unlockHintScratchers.classList.remove('hidden');
+                }
+            }
+
             const buyBBtn = document.getElementById('btn-buy-barricade');
             if (buyBBtn) {
                 const barricadeCost = 5 + (saveData.barricadeTotal * 5);
@@ -1505,6 +1716,9 @@
                     buyBBtn.innerText = `${barricadeCost} F`; 
                 }
             }
+            
+            updateTicketCostDisplay();
+            updateMusicUI();
         }
 
         function renderHealth() {
@@ -1530,6 +1744,245 @@
                 }
             }
         }
+
+        // --- Scratchers System Logic ---
+        let currentScratcherWager = 10;
+        let scratcherActive = false;
+        let scratchProgress = [0,0,0,0,0];
+        let scratchRevealed = [false,false,false,false,false];
+        let currentScratchSymbols = [];
+        
+        const SCRATCH_ENEMY_TYPES = ['normal', 'stinger', 'bouncer', 'splitter', 'phantom'];
+        
+        function getShapeHTMLForEnemy(type) {
+            switch(type) {
+                case 'normal': return `<div class="w-8 h-8 rounded-sm bg-[#ff0055] shadow-[0_0_8px_#ff0055]"></div>`;
+                case 'stinger': return `<div class="w-8 h-8 bg-[#ffff00] shadow-[0_0_8px_#ffff00]" style="clip-path: polygon(50% 0%, 0% 100%, 100% 100%);"></div>`;
+                case 'bouncer': return `<div class="w-8 h-8 rounded-full bg-[#00ffff] border-2 border-white flex items-center justify-center shadow-[0_0_8px_#00ffff]"><div class="w-3 h-3 bg-white rounded-full"></div></div>`;
+                case 'splitter': return `<div class="w-8 h-8 relative shadow-[0_0_8px_#ff8800] flex items-center justify-center"><div class="w-full h-full bg-[#ff8800] absolute inset-0" style="clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);"></div><div class="w-3 h-3 bg-white rounded-full relative z-10"></div></div>`;
+                case 'phantom': return `<div class="w-6 h-6 bg-[rgba(160,32,240,0.5)] border-2 border-[#a020f0] shadow-[0_0_8px_#a020f0]" style="transform: rotate(45deg);"></div>`;
+                default: return ``;
+            }
+        }
+
+        window.setScratcherWager = (amt) => {
+            const input = document.getElementById('custom-wager-input');
+            if (amt === 'max') {
+                currentScratcherWager = 'max';
+                input.value = saveData.flux;
+            } else {
+                let parsed = parseInt(amt);
+                if (isNaN(parsed) || parsed < 1) parsed = 1;
+                if (parsed > saveData.flux) parsed = Math.max(1, saveData.flux);
+                currentScratcherWager = parsed;
+                if(document.activeElement !== input) input.value = parsed;
+            }
+            updateTicketCostDisplay();
+        };
+
+        function updateTicketCostDisplay() {
+            const display = document.getElementById('ticket-cost-display');
+            const btn = document.getElementById('btn-buy-ticket');
+            if (!display || !btn) return;
+            
+            let cost = currentScratcherWager === 'max' ? saveData.flux : parseInt(document.getElementById('custom-wager-input').value) || 0;
+            display.innerText = cost;
+            if (saveData.flux < cost || cost <= 0) {
+                btn.disabled = true;
+            } else {
+                btn.disabled = false;
+            }
+        }
+
+        window.buyScratcherTicket = () => {
+            const inputVal = document.getElementById('custom-wager-input').value;
+            let cost = currentScratcherWager === 'max' ? saveData.flux : parseInt(inputVal) || 0;
+            if (saveData.flux < cost || cost <= 0) return;
+            
+            currentScratcherWager = cost; // lock in the exact amount
+            saveData.flux -= cost;
+            saveGame();
+            
+            document.getElementById('scratcher-setup-ui').classList.add('hidden');
+            document.getElementById('scratcher-play-ui').classList.remove('hidden');
+            document.getElementById('btn-play-again').classList.add('hidden');
+            document.getElementById('scratcher-result').innerText = '';
+            
+            scratcherActive = true;
+            scratchProgress = [0,0,0,0,0];
+            scratchRevealed = [false,false,false,false,false];
+            currentScratchSymbols = [];
+            
+            for(let i=0; i<5; i++) {
+                const randomType = SCRATCH_ENEMY_TYPES[Math.floor(Math.random() * SCRATCH_ENEMY_TYPES.length)];
+                currentScratchSymbols.push(randomType);
+                
+                document.getElementById(`sc-sym-${i}`).innerHTML = getShapeHTMLForEnemy(randomType);
+                
+                const canvas = document.querySelector(`canvas.scratch-cover[data-idx="${i}"]`);
+                const ctx = canvas.getContext('2d');
+                
+                // Draw scratch layer
+                ctx.globalCompositeOperation = 'source-over';
+                const grad = ctx.createLinearGradient(0,0,60,60);
+                grad.addColorStop(0, '#9ca3af'); // gray-400
+                grad.addColorStop(0.5, '#d1d5db'); // gray-300
+                grad.addColorStop(1, '#6b7280'); // gray-500
+                ctx.fillStyle = grad;
+                ctx.fillRect(0,0,60,60);
+                
+                // Add some texture/pattern
+                ctx.fillStyle = 'rgba(255,255,255,0.2)';
+                for(let j=0; j<8; j++) {
+                    ctx.beginPath();
+                    ctx.arc(Math.random()*60, Math.random()*60, Math.random()*15, 0, Math.PI*2);
+                    ctx.fill();
+                }
+                
+                canvas.style.opacity = '1';
+                canvas.style.pointerEvents = 'auto';
+            }
+        };
+
+        function initScratcherBoard() {
+            const board = document.getElementById('scratch-board');
+            if (!board) return;
+            let isDragging = false;
+            
+            const handleScratchMove = (x, y) => {
+                if (!isDragging || !scratcherActive) return;
+                
+                const covers = document.querySelectorAll('.scratch-cover');
+                covers.forEach(el => {
+                    const idx = parseInt(el.getAttribute('data-idx'));
+                    if(isNaN(idx) || scratchRevealed[idx]) return;
+                    
+                    const rect = el.getBoundingClientRect();
+                    if(x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
+                        const localX = x - rect.left;
+                        const localY = y - rect.top;
+                        
+                        const ctx = el.getContext('2d');
+                        ctx.globalCompositeOperation = 'destination-out';
+                        ctx.beginPath();
+                        ctx.arc(localX, localY, 18, 0, Math.PI * 2); // Increased brush size to make it easier
+                        ctx.fill();
+                        
+                        scratchProgress[idx]++;
+                        if (scratchProgress[idx] % 2 === 0) { // Check periodically
+                            const pixels = ctx.getImageData(0,0,60,60).data;
+                            let transparent = 0;
+                            for(let i=3; i<pixels.length; i+=4) {
+                                if(pixels[i] === 0) transparent++;
+                            }
+                            if (transparent / 3600 > 0.25) { // 25% cleared triggers the full reveal!
+                                revealScratchCircle(idx, el);
+                            }
+                        }
+                    }
+                });
+            };
+
+            board.addEventListener('mousedown', () => isDragging = true);
+            window.addEventListener('mouseup', () => isDragging = false);
+            board.addEventListener('mousemove', (e) => handleScratchMove(e.clientX, e.clientY));
+
+            board.addEventListener('touchstart', (e) => { isDragging = true; }, {passive: false});
+            window.addEventListener('touchend', () => isDragging = false);
+            board.addEventListener('touchmove', (e) => {
+                if(isDragging && scratcherActive) e.preventDefault(); 
+                if(e.touches.length > 0) handleScratchMove(e.touches[0].clientX, e.touches[0].clientY);
+            }, {passive: false});
+        }
+
+        function revealScratchCircle(idx, coverEl) {
+            scratchRevealed[idx] = true;
+            coverEl.style.opacity = '0';
+            coverEl.style.pointerEvents = 'none';
+            playSound('ping');
+            
+            // Clear completely after fade
+            setTimeout(() => {
+                const ctx = coverEl.getContext('2d');
+                ctx.clearRect(0,0,60,60);
+            }, 200);
+            
+            if (scratchRevealed.every(r => r === true)) {
+                scratcherActive = false;
+                setTimeout(evaluateScratcherWin, 400);
+            }
+        }
+
+        function evaluateScratcherWin() {
+            const counts = {};
+            let maxCount = 0;
+            let winningSymbol = null;
+            
+            currentScratchSymbols.forEach(sym => {
+                counts[sym] = (counts[sym] || 0) + 1;
+            });
+            
+            for (const [sym, count] of Object.entries(counts)) {
+                if (count > maxCount) {
+                    maxCount = count;
+                    winningSymbol = sym;
+                }
+            }
+            
+            const bonusMap = {
+                'normal': 0,
+                'stinger': 0.5,
+                'bouncer': 1.0,
+                'splitter': 1.5,
+                'phantom': 2.0
+            };
+            
+            let payout = 0;
+            let resultText = "NO MATCH. SYSTEM CLEARED.";
+            let resultColor = "#ff0055";
+
+            const wagerNum = currentScratcherWager;
+            let baseMult = 0;
+
+            if (maxCount === 5) {
+                baseMult = 3;
+                resultColor = "#00ff00";
+            } else if (maxCount === 4) {
+                baseMult = 2;
+                resultColor = "#00ffff";
+            } else if (maxCount === 3) {
+                baseMult = 1.5;
+                resultColor = "#fbbf24";
+            }
+
+            if (baseMult > 0) {
+                let totalMult = baseMult + bonusMap[winningSymbol];
+                payout = Math.floor(wagerNum * totalMult);
+                resultText = `MATCH! WON ${payout} F! (${totalMult}x)`;
+                
+                saveData.flux += payout;
+                saveGame();
+                playSound('reward');
+            } else {
+                playSound('damage');
+            }
+
+            const resEl = document.getElementById('scratcher-result');
+            resEl.innerText = resultText;
+            resEl.style.color = resultColor;
+            resEl.style.textShadow = `0 0 15px ${resultColor}`;
+
+            document.getElementById('btn-play-again').classList.remove('hidden');
+        }
+
+        window.resetScratcher = () => {
+            document.getElementById('scratcher-play-ui').classList.add('hidden');
+            document.getElementById('scratcher-setup-ui').classList.remove('hidden');
+            updateTicketCostDisplay();
+        };
+
+        // --- End Scratchers Logic ---
+
 
         // Crates System Logic
         function renderCratesUI() {
@@ -1676,7 +2129,7 @@
                 
                 let buttonHTML = '';
                 if (isEquipped) {
-                    buttonHTML = `<button class="btn btn-equipped" disabled>EQUIPPED</button>`;
+                    buttonHTML = `<button class="btn btn-equipped">EQUIPPED</button>`;
                 } else if (isUnlocked) {
                     buttonHTML = `<button class="btn btn-equip" onclick="equipSkin('${tab}', '${skinId}')">EQUIP</button>`;
                 } else {
@@ -1825,6 +2278,7 @@
             document.getElementById('crates-modal')?.classList.add('hidden');
             document.getElementById('customise-modal')?.classList.add('hidden');
             document.getElementById('roll-modal')?.classList.add('hidden');
+            document.getElementById('scratchers-modal')?.classList.add('hidden');
             
             const indexModal = document.getElementById('index-modal');
             if (indexModal) indexModal.classList.add('hidden');
@@ -2282,30 +2736,86 @@
                 return true;
             }
             draw() {
-                // Enemy Customise Aura
                 let auraColor = 'none';
                 if (saveData.equippedSkins && saveData.equippedSkins.enemies) {
                     auraColor = SKINS.enemies[saveData.equippedSkins.enemies].aura;
                 }
+
+                if (this.type !== 'normal' && this.type !== 'splitter') {
+                    this.trail.forEach((pos, index) => { 
+                        ctx.globalAlpha = (index / this.trail.length) * 0.4; 
+                        ctx.fillStyle = this.color; 
+                        ctx.beginPath(); 
+                        ctx.arc(pos.x, pos.y, this.size * 0.6, 0, Math.PI * 2); 
+                        ctx.fill(); 
+                    }); 
+                    ctx.globalAlpha = 1.0; 
+                }
+
                 if (auraColor !== 'none' && !this.isPhased) {
                     ctx.save();
                     ctx.fillStyle = auraColor;
                     ctx.globalAlpha = 0.25;
                     ctx.beginPath();
-                    ctx.arc(this.x, this.y, this.size * 2, 0, Math.PI * 2);
+                    
+                    let auraSize = this.size * 1.8;
+                    if (this.type === 'stinger' || this.type === 'fragment') {
+                        const angle = Math.atan2(centerY - this.y, centerX - this.x);
+                        ctx.translate(this.x, this.y); ctx.rotate(angle);
+                        ctx.moveTo(auraSize * 1.1, 0); ctx.lineTo(-auraSize * 0.7, auraSize * 0.7); ctx.lineTo(-auraSize * 0.7, -auraSize * 0.7);
+                    } else if (this.type === 'bouncer') {
+                        ctx.arc(this.x, this.y, auraSize, 0, Math.PI * 2);
+                    } else if (this.type === 'phantom') {
+                        ctx.translate(this.x, this.y); ctx.rotate(Math.PI / 4);
+                        ctx.rect(-auraSize * 0.7, -auraSize * 0.7, auraSize * 1.4, auraSize * 1.4);
+                    } else if (this.type === 'splitter') {
+                        ctx.translate(this.x, this.y); ctx.rotate(Date.now() * 0.0015);
+                        for (let i = 0; i < 6; i++) {
+                            const angle = (i * Math.PI * 2) / 6;
+                            const px = Math.cos(angle) * auraSize;
+                            const py = Math.sin(angle) * auraSize;
+                            if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+                        }
+                    } else {
+                        ctx.rect(this.x - auraSize/2, this.y - auraSize/2, auraSize, auraSize);
+                    }
+                    
+                    ctx.closePath();
                     ctx.fill();
                     ctx.restore();
                 }
 
-                if (this.type === 'stinger' || this.type === 'bouncer' || this.type === 'phantom' || this.type === 'fragment') { this.trail.forEach((pos, index) => { ctx.globalAlpha = (index / this.trail.length) * 0.4; ctx.fillStyle = this.color; ctx.beginPath(); ctx.arc(pos.x, pos.y, this.size * 0.6, 0, Math.PI * 2); ctx.fill(); }); ctx.globalAlpha = 1.0; }
-                ctx.fillStyle = this.color; ctx.shadowBlur = 15; ctx.shadowColor = this.color; ctx.beginPath();
+                ctx.fillStyle = this.color; 
+                ctx.shadowBlur = 15; 
+                ctx.shadowColor = this.color; 
+                ctx.beginPath();
+                
                 if (this.type === 'stinger' || this.type === 'fragment') { 
-                    const angle = Math.atan2(centerY - this.y, centerX - this.x); ctx.save(); ctx.translate(this.x, this.y); ctx.rotate(angle); 
+                    const angle = Math.atan2(centerY - this.y, centerX - this.x); 
+                    ctx.save(); ctx.translate(this.x, this.y); ctx.rotate(angle); 
                     ctx.moveTo(this.size * 1.1, 0); ctx.lineTo(-this.size * 0.7, this.size * 0.7); ctx.lineTo(-this.size * 0.7, -this.size * 0.7); 
                     ctx.closePath(); ctx.fill(); ctx.restore(); 
                 } 
-                else if (this.type === 'bouncer') { ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); if (this.isImmortal) { ctx.strokeStyle = "#fff"; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(this.x, this.y, this.size + 4, 0, Math.PI * 2); ctx.stroke(); } if (this.hp > 1) { ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.arc(this.x, this.y, this.size/2.5, 0, Math.PI * 2); ctx.fill(); } } 
-                else if (this.type === 'phantom') { ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); if (this.isPhased) { ctx.strokeStyle = "rgba(160, 32, 240, 0.8)"; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(this.x, this.y, this.size + 6, 0, Math.PI * 2); ctx.stroke(); } }
+                else if (this.type === 'bouncer') { 
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); 
+                    if (this.isImmortal) { 
+                        ctx.strokeStyle = "#fff"; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(this.x, this.y, this.size + 4, 0, Math.PI * 2); ctx.stroke(); 
+                    } 
+                    if (this.hp > 1) { 
+                        ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.arc(this.x, this.y, this.size/2.5, 0, Math.PI * 2); ctx.fill(); 
+                    } 
+                } 
+                else if (this.type === 'phantom') { 
+                    ctx.save(); ctx.translate(this.x, this.y); ctx.rotate(Math.PI / 4);
+                    ctx.rect(-this.size * 0.8, -this.size * 0.8, this.size * 1.6, this.size * 1.6);
+                    ctx.fill();
+                    if (this.isPhased) { 
+                        ctx.strokeStyle = "rgba(160, 32, 240, 0.8)"; ctx.lineWidth = 2; ctx.beginPath(); 
+                        ctx.rect(-this.size * 1.1, -this.size * 1.1, this.size * 2.2, this.size * 2.2); 
+                        ctx.stroke(); 
+                    }
+                    ctx.restore();
+                }
                 else if (this.type === 'splitter') {
                     ctx.save(); ctx.translate(this.x, this.y); ctx.rotate(Date.now() * 0.0015);
                     for (let i = 0; i < 6; i++) {
@@ -2318,7 +2828,9 @@
                     ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(0, 0, this.size/2.5, 0, Math.PI * 2); ctx.fill();
                     ctx.restore();
                 }
-                else { ctx.rect(this.x - this.size/2, this.y - this.size/2, this.size, this.size); ctx.fill(); }
+                else { 
+                    ctx.rect(this.x - this.size/2, this.y - this.size/2, this.size, this.size); ctx.fill(); 
+                }
                 ctx.shadowBlur = 0;
             }
         }
@@ -2522,6 +3034,7 @@
         setupDragScroll('.shop-scroll', true);
         setupDragScroll('.hide-scrollbar', false);
 
+        initScratcherBoard();
         requestAnimationFrame(loop);
     </script>
 </body>
