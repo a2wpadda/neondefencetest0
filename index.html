@@ -8,7 +8,7 @@
     <style>
         body{margin:0;padding:0;overflow:hidden;background-color:#1c1c1c;font-family:'Segoe UI',sans-serif;}
         #game-container{position:relative;width:100vw;height:100vh;display:flex;justify-content:center;align-items:center;}
-        canvas{display:block;touch-action:none;}
+        canvas{display:block;touch-action:none;box-shadow:none!important;outline:none!important;border:none!important;}
         .ui-overlay{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;display:flex;flex-direction:column;justify-content:space-between;padding:20px;box-sizing:border-box;color:white;z-index:10;}
         #top-bar{display:flex;justify-content:space-between;align-items:flex-start;width:100%;}
         #wave-container{position:absolute;top:20px;left:50%;transform:translateX(-50%);text-align:center;}
@@ -25,8 +25,8 @@
         #flux-container{position:absolute;bottom:25px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;}
         #flux-count{font-size:2.2rem;font-weight:900;color:#fbbf24;text-shadow:0 0 15px #fbbf24;line-height:1;}
         #flux-label{font-size:0.75rem;text-transform:uppercase;color:rgba(251,191,36,0.6);letter-spacing:2px;margin-bottom:4px;font-weight:bold;}
-        .modal{position:absolute;background:rgba(30,30,30,0.96);backdrop-filter:blur(25px);padding:2.5rem;border-radius:32px;border:2px solid #444;text-align:center;pointer-events:auto;display:flex;flex-direction:column;z-index:30;box-shadow:0 15px 50px rgba(0,0,0,0.8);width:95vw;height:90vh;max-width:650px;gap:1.5rem;top:50%;left:50%;transform:translate(-50%,-50%);}
-        .modal-small{position:absolute;background:rgba(40,40,40,0.9);backdrop-filter:blur(20px);padding:1.5rem;border-radius:24px;border:2px solid #444;text-align:center;pointer-events:auto;display:flex;flex-direction:column;z-index:20;box-shadow:0 15px 40px rgba(0,0,0,0.8);width:90vw;max-width:320px;top:50%;left:50%;transform:translate(-50%,-50%);}
+        .modal{position:absolute;background:rgba(0,0,0,0.96);backdrop-filter:blur(25px);padding:2.5rem;border-radius:32px;border:2px solid #0ff;text-align:center;pointer-events:auto;display:flex;flex-direction:column;z-index:30;box-shadow:none;width:95vw;height:90vh;max-width:650px;gap:1.5rem;top:50%;left:50%;transform:translate(-50%,-50%);}
+        .modal-small{position:absolute;background:rgba(0,0,0,0.9);backdrop-filter:blur(20px);padding:1.5rem;border-radius:24px;border:2px solid #0ff;text-align:center;pointer-events:auto;display:flex;flex-direction:column;z-index:20;box-shadow:none;width:90vw;max-width:320px;top:50%;left:50%;transform:translate(-50%,-50%);}
         #roll-modal{z-index:60;background:rgba(20,20,20,0.98);}
         .shop-scroll{overflow-y:auto;flex-grow:1;padding:0 4px;display:flex;flex-direction:column;gap:1.25rem;width:100%;touch-action:pan-y;scrollbar-width:none;}
         .shop-scroll::-webkit-scrollbar{display:none;}
@@ -97,8 +97,8 @@
                 <h1 class="modal-title glow-text mb-2 text-4xl">WELCOME</h1>
                 <p id="auth-sub-label" class="text-xs text-gray-400 font-bold uppercase tracking-widest mb-4">Secure Connection</p>
                 <div class="flex flex-col gap-2 mb-2">
-                    <input type="text" id="auth-username" maxlength="12" placeholder="USERNAME" class="bg-[#242424] border-2 border-[#0ff] text-gray-300 text-center font-black text-xl p-3 rounded uppercase">
-                    <input type="password" id="auth-password" placeholder="PASSWORD" class="bg-[#242424] border-2 border-[#0ff] text-gray-300 text-center font-black text-xl p-3 rounded">
+                    <input type="text" id="auth-username" maxlength="12" placeholder="USERNAME" class="bg-black/50 border-2 border-[#0ff] text-[#0ff] text-center font-black text-xl p-3 rounded uppercase">
+                    <input type="password" id="auth-password" placeholder="PASSWORD" class="bg-black/50 border-2 border-[#0ff] text-[#0ff] text-center font-black text-xl p-3 rounded">
                 </div>
                 <div class="flex items-center justify-center gap-2 mb-1"><input type="checkbox" id="auth-remember" checked><label for="auth-remember" class="text-[#0ff] text-xs font-bold uppercase cursor-pointer">Remember Me</label></div>
                 <div id="auth-error" class="text-xs text-red-500 font-bold h-4"></div>
@@ -108,7 +108,7 @@
             <div id="menu" class="hidden modal-small">
                 <h1 class="text-4xl font-black glow-text italic mb-1">NEON DEFENCE</h1>
                 <p class="text-gray-400 text-xs font-bold mb-6 uppercase tracking-widest">Wave <span id="start-wave-num" class="text-white">1</span> Ready</p>
-                <div id="test-wave-selector" class="mb-4 items-center justify-center gap-2 hidden"><span class="text-xs text-[#0ff] font-bold">JUMP:</span><input type="number" min="1" max="100" class="w-16 bg-[#242424] border border-[#0ff] text-gray-300 text-center rounded p-1" onchange="setTestWave(this.value)"></div>
+                <div id="test-wave-selector" class="mb-4 items-center justify-center gap-2 hidden"><span class="text-xs text-[#0ff] font-bold">JUMP:</span><input type="number" min="1" max="100" class="w-16 bg-black/50 border border-[#0ff] text-[#0ff] text-center rounded p-1" onchange="setTestWave(this.value)"></div>
                 <div class="flex flex-col gap-3">
                     <button class="btn" onclick="handleStartClick()">START MISSION</button>
                     <div class="grid grid-cols-2 gap-2"><button class="btn btn-secondary text-sm" onclick="toggleModal('shop')">UPGRADES</button><button class="btn btn-secondary text-sm" id="btn-open-barricade-shop" onclick="toggleModal('barricade-shop')">SHOP</button></div>
@@ -824,6 +824,7 @@
         function skipTutorial(){saveData.tutorialCompleted=true;saveGame();startGame(true);}
         window.togglePause=togglePause; window.quitToMenu=()=>endGame(); window.startGame=startGame; window.toggleModal=toggleModal; window.buyUpgrade=buyUpgrade; window.buyBarricade=buyBarricade; window.submitGlobalScore=submitGlobalScore; window.handleAuth=handleAuth; window.handleSignOut=handleSignOut; window.renderLeaderboardUI=renderLeaderboardUI; window.renderCustomiseUI=renderCustomiseUI; window.endGame=endGame; window.triggerEMP=triggerEMP; window.handleStartClick=handleStartClick; window.completeTutorial=completeTutorial; window.skipTutorial=skipTutorial; window.buyScratcherUpgrade=buyScratcherUpgrade; window.setTestWave=(v)=>{if(!TEST_MODE)return;let w=parseInt(v);if(isNaN(w)||w<1)w=1;saveData.currentWave=w;saveData.highestWaveReached=Math.max(saveData.highestWaveReached||1,w);saveGame();};
         const sDS=(sel,iV)=>{document.querySelectorAll(sel).forEach(el=>{let iD=false,sP,sS;el.addEventListener('mousedown',e=>{iD=true;sP=iV?e.pageY-el.offsetTop:e.pageX-el.offsetLeft;sS=iV?el.scrollTop:el.scrollLeft;});el.addEventListener('mouseleave',()=>iD=false);el.addEventListener('mouseup',()=>iD=false);el.addEventListener('mousemove',e=>{if(!iD)return;e.preventDefault();const cP=iV?e.pageY-el.offsetTop:e.pageX-el.offsetLeft,w=(cP-sP)*1.5;if(iV)el.scrollTop=sS-w;else el.scrollLeft=sS-w;});});}; sDS('.shop-scroll',true); sDS('.hide-scrollbar',false);
+        
         initScratcherBoard(); requestAnimationFrame(loop);
     </script>
 </body>
