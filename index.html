@@ -863,7 +863,7 @@
                   Scratches through tough security foil in fewer strokes.
                 </li>
                 <li>
-                  <strong class="text-white">Scratcher Luck (Max 5):</strong>
+                  <strong class="text-white">Scratcher Luck (Max 10):</strong>
                   Permanently improves the drop rates of rare, high-paying
                   symbols across all tickets.
                 </li>
@@ -4626,6 +4626,33 @@
         document.getElementById("lvl-scratcherLuck").innerText = sLuckLv;
         document.getElementById("cost-scratcherLuck").innerText =
           sLuckLv >= 10 ? "MAX" : 75 + sLuckLv * 75 + " F";
+
+        // Dynamically update scratcher odds display based on luck
+        const lk = sLuckLv;
+        // twowin odds
+        const twBouncer = 5 + lk * 2;
+        const twStinger = 15 + lk * 1;
+        const twNormal = 100 - twBouncer - twStinger;
+        const twOddsN = document.getElementById("tw-odds-normal");
+        const twOddsS = document.getElementById("tw-odds-stinger");
+        const twOddsB = document.getElementById("tw-odds-bouncer");
+        if (twOddsN) twOddsN.innerText = twNormal + "%";
+        if (twOddsS) twOddsS.innerText = twStinger + "%";
+        if (twOddsB) twOddsB.innerText = twBouncer + "%";
+        // threefive odds
+        const tfSplitter = 3 + lk * 3;
+        const tfBouncer = 10 + lk * 2;
+        const tfStinger = 20 - lk * 1;
+        const tfNormal = 100 - tfSplitter - tfBouncer - tfStinger;
+        const tfOddsN = document.getElementById("tf-odds-normal");
+        const tfOddsS = document.getElementById("tf-odds-stinger");
+        const tfOddsB = document.getElementById("tf-odds-bouncer");
+        const tfOddsSp = document.getElementById("tf-odds-splitter");
+        if (tfOddsN) tfOddsN.innerText = tfNormal + "%";
+        if (tfOddsS) tfOddsS.innerText = tfStinger + "%";
+        if (tfOddsB) tfOddsB.innerText = tfBouncer + "%";
+        if (tfOddsSp) tfOddsSp.innerText = tfSplitter + "%";
+
         const highestWave = saveData.highestWaveReached || saveData.currentWave;
 
         const btnThreeFive = document.getElementById("btn-buy-threefive");
