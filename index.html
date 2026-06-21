@@ -822,7 +822,7 @@
               <p class="text-gray-400">
                 Leaderboards have been fully reset. The <strong class="text-white">Total Flux</strong> tab now
                 tracks your current flux balance, and <strong class="text-white">Playtime</strong> now records
-                your total time spent on the website — not just in active waves.
+                your total time spent on the website - not just in active waves.
                 The Bosses Slain tab has been retired.
               </p>
             </div>
@@ -850,7 +850,7 @@
             <div
               class="bg-[#1a1a1a] p-4 rounded-xl border border-white/5 shadow-lg"
             >
-              <h3 class="font-black text-[#0ff] text-lg mb-1">The Gemini — Supersized</h3>
+              <h3 class="font-black text-[#0ff] text-lg mb-1">The Gemini - Supersized</h3>
               <p class="text-gray-400">
                 The Wave 20 Gemini twins are now <strong class="text-white">twice as large</strong>,
                 making them a much more imposing and visible threat on the battlefield.
@@ -1160,7 +1160,7 @@
               </div>
               <div>
                 <h3 class="font-black text-[#ff33ff] text-lg">The Mimic (Wave 40)</h3>
-                <p class="text-gray-400 text-xs">A test of memory. Flashes a colour for 1.15s, then splits into 5 identical octagons. Only the correct hue is real — striking a decoy causes severe core damage.</p>
+                <p class="text-gray-400 text-xs">A test of memory. Flashes a colour for 1.15s, then splits into 5 identical octagons. Only the correct hue is real - striking a decoy causes severe core damage.</p>
               </div>
             </div>
             <div class="bg-[#1a1a1a] p-4 rounded-2xl border border-white/5 flex items-center gap-4 hidden shadow-lg" id="threat-mirror">
@@ -2823,7 +2823,7 @@
 
 
     <script type="module">
-      const TEST_MODE = false;
+      const TEST_MODE = true;
 
       import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
       import {
@@ -7412,7 +7412,7 @@ default: return ``;
             return false;
           }
           
-          if (dist < SHIELD_RADIUS + this.size + hitRange && dist > SHIELD_RADIUS - hitRange) {
+          if (dist < SHIELD_RADIUS + this.size + hitRange && dist > SHIELD_RADIUS - this.size - hitRange) {
             const currentAngle = Math.atan2(this.y - centerY, this.x - centerX);
             const normalizedEnemyAngle = ((currentAngle % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
             const arcWidth = 0.7 + (saveData.upgrades.width - 1) * 0.15;
@@ -7514,8 +7514,8 @@ class TheBoss extends ColossalBoss {
                 // Re-check distance after each step
                 let sdx = centerX - this.x; let sdy = centerY - this.y;
                 let sdist = Math.hypot(sdx, sdy);
-                if (sdist < SHIELD_RADIUS + this.size + 10 && sdist > SHIELD_RADIUS - 10) {
-                   // We're in the shield zone — let the collision check below handle it
+                if (sdist < SHIELD_RADIUS + this.size + 10 && sdist > SHIELD_RADIUS - this.size - 10) {
+                   // We're in the shield zone - let the collision check below handle it
                    break;
                 }
              }
@@ -7650,6 +7650,7 @@ class TheBoss extends ColossalBoss {
           this.vy = Math.sin(this.angle) * this.speed;
           this.state = "bounce"; this.stateTimer = 300; this.sawRot = 0;
           this.curving = false;
+          this.bounceCooldown = 0;
         }
         update() {
           this.sawRot += 0.2 * timeScale;
@@ -7657,6 +7658,9 @@ class TheBoss extends ColossalBoss {
           let dist = Math.hypot(dx, dy);
           
           if (this.state === "bounce") {
+             if (this.bounceCooldown > 0) {
+                this.bounceCooldown -= timeScale;
+             }
              if (this.curving) {
                 let angleChange = 0.008 * timeScale;
                 let cosA = Math.cos(angleChange);
@@ -7679,10 +7683,15 @@ class TheBoss extends ColossalBoss {
              }
              
              // Stun player if hits shield during bounce
-             if (dist < SHIELD_RADIUS + this.size && dist > SHIELD_RADIUS - 10) {
+             if (this.bounceCooldown <= 0 && dist < SHIELD_RADIUS + this.size && dist > SHIELD_RADIUS - this.size - 10) {
                 rotationDir *= -1; // stun/reverse rotation
-                this.x -= this.vx * 3; this.y -= this.vy * 3;
-                this.vx *= -1; this.vy *= -1;
+                const pushAngle = Math.atan2(this.y - centerY, this.x - centerX);
+                this.x = centerX + Math.cos(pushAngle) * (SHIELD_RADIUS + this.size + 15);
+                this.y = centerY + Math.sin(pushAngle) * (SHIELD_RADIUS + this.size + 15);
+                const bounceSpeed = Math.hypot(this.vx, this.vy);
+                this.vx = Math.cos(pushAngle) * bounceSpeed;
+                this.vy = Math.sin(pushAngle) * bounceSpeed;
+                this.bounceCooldown = 30; // 0.5 seconds of cooldown
                 createExplosion(this.x, this.y, "#fff", 10);
                 playSound(200, "square", 0.1, 0.1);
              }
@@ -7693,7 +7702,23 @@ class TheBoss extends ColossalBoss {
                 this.vx = (dx/dist) * this.speed * 2; this.vy = (dy/dist) * this.speed * 2;
              }
           } else if (this.state === "dash") {
-             this.x += this.vx * timeScale; this.y += this.vy * timeScale;
+             const dashSpeed = Math.hypot(this.vx, this.vy) * timeScale;
+             if (dashSpeed > 0) {
+                const dxNorm = this.vx / (dashSpeed / timeScale);
+                const dyNorm = this.vy / (dashSpeed / timeScale);
+                const steps = Math.ceil(dashSpeed / 5);
+                for (let step = 0; step < steps; step++) {
+                   this.x += dxNorm * (dashSpeed / steps);
+                   this.y += dyNorm * (dashSpeed / steps);
+                   let sdx = centerX - this.x; let sdy = centerY - this.y;
+                   let sdist = Math.hypot(sdx, sdy);
+                   if (sdist < SHIELD_RADIUS + this.size + 10 && sdist > SHIELD_RADIUS - this.size - 10) {
+                      break;
+                   }
+                }
+                dx = centerX - this.x; dy = centerY - this.y;
+                dist = Math.hypot(dx, dy);
+             }
              if (dist < 20 + this.size) { endGame(); return false; }
              
              // Shield Collision
@@ -7708,6 +7733,7 @@ class TheBoss extends ColossalBoss {
                 this.y += this.vy * 5;
                 this.state = "bounce"; this.stateTimer = 300;
                 this.curving = true;
+                this.bounceCooldown = 30; // set cooldown when transitioning to bounce state
                 createExplosion(this.x, this.y, this.color, 30);
                 playSound(300, "sawtooth", 0.05, 0.2);
                 if (this.hp <= 0) return true;
@@ -7862,7 +7888,7 @@ class TheBoss extends ColossalBoss {
           this.savedMulti = saveData.upgrades.multi;
           saveData.upgrades.multi = 1;
           this.overrideActive = true;
-          floatingTexts.push(new FloatingText(centerX, centerY - 60, "SYSTEMS HACKED — SINGLE SHIELD", "#ff0000"));
+          floatingTexts.push(new FloatingText(centerX, centerY - 60, "SYSTEMS HACKED - SINGLE SHIELD", "#ff0000"));
           playSound(150, "sawtooth", 0.1, 0.3);
         }
         
@@ -8412,12 +8438,27 @@ class TheBoss extends ColossalBoss {
               this.dashVy = (dy / dist) * 7.5;
             }
           } else if (this.state === "dash") {
-            this.x += this.dashVx * timeScale;
-            this.y += this.dashVy * timeScale;
-            if (dist < 20 + this.size) {
-              endGame();
-              return false;
-            }
+             const dashSpeed = Math.hypot(this.dashVx, this.dashVy) * timeScale;
+             if (dashSpeed > 0) {
+                const dxNorm = this.dashVx / (dashSpeed / timeScale);
+                const dyNorm = this.dashVy / (dashSpeed / timeScale);
+                const steps = Math.ceil(dashSpeed / 5);
+                for (let step = 0; step < steps; step++) {
+                   this.x += dxNorm * (dashSpeed / steps);
+                   this.y += dyNorm * (dashSpeed / steps);
+                   let sdx = centerX - this.x; let sdy = centerY - this.y;
+                   let sdist = Math.hypot(sdx, sdy);
+                   if (sdist < SHIELD_RADIUS + this.size + 15 && sdist > SHIELD_RADIUS - this.size - 15) {
+                      break;
+                   }
+                }
+                dx = centerX - this.x; dy = centerY - this.y;
+                dist = Math.hypot(dx, dy);
+             }
+             if (dist < 20 + this.size) {
+               endGame();
+               return false;
+             }
           }
           
           if (this.checkShieldCollision(dist, 15)) {
@@ -9451,7 +9492,7 @@ class TheBoss extends ColossalBoss {
           let skinColor = "#0ff";
           let skinId = "default";
           
-          // Check if Mimic override is active — force neon green
+          // Check if Mimic override is active - force neon green
           let mimicOverride = false;
           for (const b of bosses) {
             if (b instanceof TheMimic && b.overrideActive) { mimicOverride = true; break; }
