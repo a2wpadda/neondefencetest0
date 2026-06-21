@@ -2823,7 +2823,7 @@
 
 
     <script type="module">
-      const TEST_MODE = true;
+      const TEST_MODE = false;
 
       import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
       import {
@@ -3963,7 +3963,9 @@
         currentBaseScreen = "menu",
         currentWaveTime = 0,
         hasTakenDamageThisWave = false,
-        isRolling = false;
+        isRolling = false,
+        timeSinceLastAction = 0,
+        shieldAlpha = 1.0;
 
       const SHIELD_RADIUS = 80;
       const BARRICADE_BASE_RADIUS = 130;
@@ -4728,6 +4730,9 @@
       resize();
       window.addEventListener("mousedown", (e) => {
         initAudio();
+        if (gameActive && !isPaused) {
+          timeSinceLastAction = 0;
+        }
         let clickedDenier = false;
         if (gameActive && !isPaused) {
           const rect = canvas.getBoundingClientRect();
@@ -4757,6 +4762,9 @@
         "touchstart",
         (e) => {
           initAudio();
+          if (gameActive && !isPaused) {
+            timeSinceLastAction = 0;
+          }
           if (!gameActive || isPaused) return;
           
           let clickedDenier = false;
@@ -4801,6 +4809,9 @@
       );
       window.addEventListener("keydown", (e) => {
         initAudio();
+        if (gameActive && !isPaused) {
+          timeSinceLastAction = 0;
+        }
         if (e.key === "Escape" && gameActive) togglePause();
         if (e.code === "Space" || e.key === " ") {
           if (e.target.tagName !== "INPUT") {
@@ -6292,6 +6303,8 @@ default: return ``;
         floatingTexts = [];
         currentWaveTime = 0;
         hasTakenDamageThisWave = false;
+        timeSinceLastAction = 0;
+        shieldAlpha = 1.0;
         isBossWave = saveData.currentWave % 10 === 0;
         if (isBossWave) {
           totalEnemiesToDestroy = 1;
@@ -9515,6 +9528,7 @@ class TheBoss extends ColossalBoss {
           }
 
           ctx.save();
+          ctx.globalAlpha = shieldAlpha;
           ctx.translate(centerX, centerY);
           const offset = ((Math.PI * 2) / shieldCount) * i;
           ctx.rotate(rotation + offset);
@@ -9585,6 +9599,12 @@ class TheBoss extends ColossalBoss {
         }
 
         if (gameActive && !isPaused) {
+          timeSinceLastAction += dt / 1000;
+          if (timeSinceLastAction >= 13) {
+            shieldAlpha = Math.max(0.25, shieldAlpha - (dt / 1000) * 0.25);
+          } else {
+            shieldAlpha = Math.min(1.0, shieldAlpha + (dt / 1000) * 4.0);
+          }
           enemiesToAdd = [];
           currentWaveTime += dt / 1000;
           const baseRotate = 0.04;
