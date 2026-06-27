@@ -481,6 +481,33 @@
           box-shadow: 0 0 40px #0ff;
         }
       }
+      .btn-active-hud {
+        position: absolute;
+        right: 20px;
+        padding: 0.6rem 1rem;
+        border-radius: 50px;
+        font-weight: 900;
+        font-size: 0.9rem;
+        pointer-events: auto;
+        border: none;
+        z-index: 15;
+        transition: all 0.2s;
+      }
+      .btn-active-hud:active {
+        transform: scale(0.9);
+      }
+      #btn-active-timeFreeze {
+        bottom: 195px;
+        background: #00bfff;
+        color: #fff;
+        box-shadow: 0 0 15px #00bfff;
+      }
+      #btn-active-blackHole {
+        bottom: 255px;
+        background: #bf5af2;
+        color: #fff;
+        box-shadow: 0 0 15px #bf5af2;
+      }
       .color-preview {
         width: 24px;
         height: 24px;
@@ -636,6 +663,14 @@
 
         <button id="btn-emp-mobile" class="hidden" onclick="triggerEMP()">
           EMP READY
+        </button>
+
+        <button id="btn-active-timeFreeze" class="hidden btn-active-hud" onclick="triggerTimeFreeze()">
+          FREEZE: READY
+        </button>
+
+        <button id="btn-active-blackHole" class="hidden btn-active-hud" onclick="triggerBlackHole()">
+          VORTEX: READY
         </button>
 
         <!-- Auth Modal -->
@@ -1413,6 +1448,284 @@
               </button>
             </div>
 
+            <div class="upgrade-row" id="row-knockback">
+              <div class="upgrade-info">
+                <h3>
+                  Shield Knockback
+                  <span id="lvl-knockback" class="lvl-badge">0</span>
+                </h3>
+                <p>Enemies bounced off your shield get pushed back further.</p>
+              </div>
+              <button
+                class="btn btn-buy"
+                id="btn-knockback"
+                onclick="buyUpgrade('knockback')"
+              >
+                <span id="cost-knockback">30 F</span>
+              </button>
+            </div>
+
+            <div class="upgrade-row" id="row-slowField">
+              <div class="upgrade-info">
+                <h3>
+                  Slow Field
+                  <span id="lvl-slowField" class="lvl-badge">0</span>
+                </h3>
+                <p>A ring around the core slows enemies as they get close.</p>
+              </div>
+              <button
+                class="btn btn-buy"
+                id="btn-slowField"
+                onclick="buyUpgrade('slowField')"
+              >
+                <span id="cost-slowField">100 F</span>
+              </button>
+            </div>
+
+            <div class="upgrade-row" id="row-lastStand">
+              <div class="upgrade-info">
+                <h3>
+                  Last Stand
+                  <span id="lvl-lastStand" class="lvl-badge">0</span>
+                </h3>
+                <p>Wider/faster shields when core is at 1 life remaining.</p>
+              </div>
+              <button
+                class="btn btn-buy"
+                id="btn-lastStand"
+                onclick="buyUpgrade('lastStand')"
+              >
+                <span id="cost-lastStand">60 F</span>
+              </button>
+            </div>
+
+            <div class="upgrade-row" id="row-bountyTargets">
+              <div class="upgrade-info">
+                <h3>
+                  Bounty Targets
+                  <span id="lvl-bountyTargets" class="lvl-badge">0</span>
+                </h3>
+                <p>Random enemies per wave glow gold and drop 10x flux.</p>
+              </div>
+              <button
+                class="btn btn-buy"
+                id="btn-bountyTargets"
+                onclick="buyUpgrade('bountyTargets')"
+              >
+                <span id="cost-bountyTargets">45 F</span>
+              </button>
+            </div>
+
+            <!-- Shield Echo -->
+            <div class="upgrade-row" id="row-shieldEcho">
+              <div class="upgrade-info">
+                <h3>
+                  Shield Echo
+                  <span id="lvl-shieldEcho" class="lvl-badge">0</span>
+                </h3>
+                <p>After blocking an enemy, a faint ghost shield lingers briefly.</p>
+              </div>
+              <button class="btn btn-buy" id="btn-shieldEcho" onclick="buyUpgrade('shieldEcho')">
+                <span id="cost-shieldEcho">150 F</span>
+              </button>
+            </div>
+
+            <!-- Reactive Shields -->
+            <div class="upgrade-row" id="row-reactiveShields">
+              <div class="upgrade-info">
+                <h3>
+                  Reactive Shields
+                  <span id="lvl-reactiveShields" class="lvl-badge">0</span>
+                </h3>
+                <p>Shields gently pull toward the nearest enemy (soft aim assist).</p>
+              </div>
+              <button class="btn btn-buy" id="btn-reactiveShields" onclick="buyUpgrade('reactiveShields')">
+                <span id="cost-reactiveShields">80 F</span>
+              </button>
+            </div>
+
+            <!-- Shield Ricochet -->
+            <div class="upgrade-row" id="row-shieldRicochet">
+              <div class="upgrade-info">
+                <h3>
+                  Shield Ricochet
+                  <span id="lvl-shieldRicochet" class="lvl-badge">0</span>
+                </h3>
+                <p>Bounced enemies fly into other enemies and damage them.</p>
+              </div>
+              <button class="btn btn-buy" id="btn-shieldRicochet" onclick="buyUpgrade('shieldRicochet')">
+                <span id="cost-shieldRicochet">200 F</span>
+              </button>
+            </div>
+
+            <!-- Orbital Mines -->
+            <div class="upgrade-row" id="row-orbitalMines">
+              <div class="upgrade-info">
+                <h3>
+                  Orbital Mines
+                  <span id="lvl-orbitalMines" class="lvl-badge">0</span>
+                </h3>
+                <p>Small mines orbit outside your shields and explode on contact.</p>
+              </div>
+              <button class="btn btn-buy" id="btn-orbitalMines" onclick="buyUpgrade('orbitalMines')">
+                <span id="cost-orbitalMines">100 F</span>
+              </button>
+            </div>
+
+            <!-- Chain Lightning -->
+            <div class="upgrade-row" id="row-chainLightning">
+              <div class="upgrade-info">
+                <h3>
+                  Chain Lightning
+                  <span id="lvl-chainLightning" class="lvl-badge">0</span>
+                </h3>
+                <p>Chance on enemy kill to arc lightning to a nearby enemy.</p>
+              </div>
+              <button class="btn btn-buy" id="btn-chainLightning" onclick="buyUpgrade('chainLightning')">
+                <span id="cost-chainLightning">120 F</span>
+              </button>
+            </div>
+
+            <!-- Revenge Blast -->
+            <div class="upgrade-row" id="row-revengeBlast">
+              <div class="upgrade-info">
+                <h3>
+                  Revenge Blast
+                  <span id="lvl-revengeBlast" class="lvl-badge">0</span>
+                </h3>
+                <p>Automatic explosion kills nearby enemies when losing a life.</p>
+              </div>
+              <button class="btn btn-buy" id="btn-revengeBlast" onclick="buyUpgrade('revengeBlast')">
+                <span id="cost-revengeBlast">75 F</span>
+              </button>
+            </div>
+
+            <!-- Counter Pulse -->
+            <div class="upgrade-row" id="row-counterPulse">
+              <div class="upgrade-info">
+                <h3>
+                  Counter Pulse
+                  <span id="lvl-counterPulse" class="lvl-badge">0</span>
+                </h3>
+                <p>Every X enemies blocked, your core releases a small shockwave.</p>
+              </div>
+              <button class="btn btn-buy" id="btn-counterPulse" onclick="buyUpgrade('counterPulse')">
+                <span id="cost-counterPulse">60 F</span>
+              </button>
+            </div>
+
+            <!-- Flux Vacuum -->
+            <div class="upgrade-row" id="row-fluxVacuum">
+              <div class="upgrade-info">
+                <h3>
+                  Flux Vacuum
+                  <span id="lvl-fluxVacuum" class="lvl-badge">0</span>
+                </h3>
+                <p>Flux pickups get pulled toward the core automatically.</p>
+              </div>
+              <button class="btn btn-buy" id="btn-fluxVacuum" onclick="buyUpgrade('fluxVacuum')">
+                <span id="cost-fluxVacuum">40 F</span>
+              </button>
+            </div>
+
+            <!-- Interest -->
+            <div class="upgrade-row" id="row-interest">
+              <div class="upgrade-info">
+                <h3>
+                  Interest
+                  <span id="lvl-interest" class="lvl-badge">0</span>
+                </h3>
+                <p>Earn bonus flux at end of each wave based on current balance.</p>
+              </div>
+              <button class="btn btn-buy" id="btn-interest" onclick="buyUpgrade('interest')">
+                <span id="cost-interest">50 F</span>
+              </button>
+            </div>
+
+            <!-- Core Overdrive -->
+            <div class="upgrade-row" id="row-coreOverdrive">
+              <div class="upgrade-info">
+                <h3>
+                  Core Overdrive
+                  <span id="lvl-coreOverdrive" class="lvl-badge">0</span>
+                </h3>
+                <p>The core itself pulses damage periodically to nearby enemies.</p>
+              </div>
+              <button class="btn btn-buy" id="btn-coreOverdrive" onclick="buyUpgrade('coreOverdrive')">
+                <span id="cost-coreOverdrive">300 F</span>
+              </button>
+            </div>
+
+            <!-- Shield Spikes -->
+            <div class="upgrade-row" id="row-shieldSpikes">
+              <div class="upgrade-info">
+                <h3>
+                  Shield Spikes
+                  <span id="lvl-shieldSpikes" class="lvl-badge">0</span>
+                </h3>
+                <p>Spikes deal extra damage to heavy enemies on contact.</p>
+              </div>
+              <button class="btn btn-buy" id="btn-shieldSpikes" onclick="buyUpgrade('shieldSpikes')">
+                <span id="cost-shieldSpikes">100 F</span>
+              </button>
+            </div>
+
+            <!-- Refractor Beam -->
+            <div class="upgrade-row" id="row-refractorBeam">
+              <div class="upgrade-info">
+                <h3>
+                  Refractor Beam
+                  <span id="lvl-refractorBeam" class="lvl-badge">0</span>
+                </h3>
+                <p>Chance on block to fire a laser beam outward from the shield.</p>
+              </div>
+              <button class="btn btn-buy" id="btn-refractorBeam" onclick="buyUpgrade('refractorBeam')">
+                <span id="cost-refractorBeam">180 F</span>
+              </button>
+            </div>
+
+            <!-- EMP Dynamo -->
+            <div class="upgrade-row" id="row-empDynamo">
+              <div class="upgrade-info">
+                <h3>
+                  EMP Dynamo
+                  <span id="lvl-empDynamo" class="lvl-badge">0</span>
+                </h3>
+                <p>Increases EMP charge gained. At max, taking damage charges EMP.</p>
+              </div>
+              <button class="btn btn-buy" id="btn-empDynamo" onclick="buyUpgrade('empDynamo')">
+                <span id="cost-empDynamo">120 F</span>
+              </button>
+            </div>
+
+            <!-- Solar Flare -->
+            <div class="upgrade-row" id="row-solarFlare">
+              <div class="upgrade-info">
+                <h3>
+                  Solar Flare
+                  <span id="lvl-solarFlare" class="lvl-badge">0</span>
+                </h3>
+                <p>EMP leaves a burning solar ring around the core that damages enemies.</p>
+              </div>
+              <button class="btn btn-buy" id="btn-solarFlare" onclick="buyUpgrade('solarFlare')">
+                <span id="cost-solarFlare">150 F</span>
+              </button>
+            </div>
+
+            <!-- Perfect Sweep -->
+            <div class="upgrade-row" id="row-perfectSweep">
+              <div class="upgrade-info">
+                <h3>
+                  Perfect Sweep
+                  <span id="lvl-perfectSweep" class="lvl-badge">0</span>
+                </h3>
+                <p>Perfect wave clears award bonus flux payouts.</p>
+              </div>
+              <button class="btn btn-buy" id="btn-perfectSweep" onclick="buyUpgrade('perfectSweep')">
+                <span id="cost-perfectSweep">80 F</span>
+              </button>
+            </div>
+
             <div
               class="text-center w-full mt-4 mb-2 border-b border-white/10 pb-2 hidden"
               id="row-scratcherHeader"
@@ -1568,6 +1881,100 @@
                 <span id="cost-emp">100 F</span>
               </button>
             </div>
+
+            <!-- Enemy Radar -->
+            <div class="upgrade-row" id="row-enemyRadar">
+              <div class="upgrade-info">
+                <h3>
+                  Enemy Radar
+                  <span id="lvl-enemyRadar" class="lvl-badge">0</span>
+                </h3>
+                <p>Warning arrows on screen edges show where enemies will spawn next.</p>
+              </div>
+              <button class="btn btn-buy" id="btn-enemyRadar" onclick="buyUpgrade('enemyRadar')">
+                <span id="cost-enemyRadar">150 F</span>
+              </button>
+            </div>
+
+            <!-- Greed Mode -->
+            <div class="upgrade-row" id="row-greedMode">
+              <div class="upgrade-info">
+                <h3>
+                  Greed Mode
+                  <span id="lvl-greedMode" class="lvl-badge">0</span>
+                </h3>
+                <p>Enemies move faster but give 2x flux. Includes toggle control.</p>
+              </div>
+              <div class="flex flex-col gap-2 items-end">
+                <button class="btn btn-buy" id="btn-greedMode" onclick="buyUpgrade('greedMode')">
+                  <span id="cost-greedMode">200 F</span>
+                </button>
+                <button class="btn hidden !bg-yellow-600 !text-white shadow-[0_0_8px_rgba(202,138,4,0.4)]" id="btn-toggle-greed" onclick="toggleGreedMode()">
+                  GREED: OFF
+                </button>
+              </div>
+            </div>
+
+            <!-- Sudden Death -->
+            <div class="upgrade-row" id="row-suddenDeath">
+              <div class="upgrade-info">
+                <h3>
+                  Sudden Death
+                  <span id="lvl-suddenDeath" class="lvl-badge">0</span>
+                </h3>
+                <p>All flux drops are tripled, but taking any damage causes instant Game Over.</p>
+              </div>
+              <div class="flex flex-col gap-2 items-end">
+                <button class="btn btn-buy" id="btn-suddenDeath" onclick="buyUpgrade('suddenDeath')">
+                  <span id="cost-suddenDeath">250 F</span>
+                </button>
+                <button class="btn hidden !bg-red-700 !text-white shadow-[0_0_8px_rgba(220,38,38,0.4)]" id="btn-toggle-sudden" onclick="toggleSuddenDeath()">
+                  HARDCORE: OFF
+                </button>
+              </div>
+            </div>
+
+            <!-- Inner Shield -->
+            <div class="upgrade-row" id="row-innerShield">
+              <div class="upgrade-info">
+                <h3>
+                  Inner Shield
+                  <span id="lvl-innerShield" class="lvl-badge">0</span>
+                </h3>
+                <p>A second, smaller shield ring orbits close to the core in opposite direction.</p>
+              </div>
+              <button class="btn btn-buy" id="btn-innerShield" onclick="buyUpgrade('innerShield')">
+                <span id="cost-innerShield">750 F</span>
+              </button>
+            </div>
+
+            <!-- Time Freeze -->
+            <div class="upgrade-row" id="row-timeFreeze">
+              <div class="upgrade-info">
+                <h3>
+                  Time Freeze
+                  <span id="lvl-timeFreeze" class="lvl-badge">0</span>
+                </h3>
+                <p>Unlocks the Time Freeze active ability (Press F to freeze enemies).</p>
+              </div>
+              <button class="btn btn-buy" id="btn-timeFreeze" onclick="buyUpgrade('timeFreeze')">
+                <span id="cost-timeFreeze">400 F</span>
+              </button>
+            </div>
+
+            <!-- Black Hole -->
+            <div class="upgrade-row" id="row-blackHole">
+              <div class="upgrade-info">
+                <h3>
+                  Black Hole
+                  <span id="lvl-blackHole" class="lvl-badge">0</span>
+                </h3>
+                <p>Unlocks the Black Hole active ability (Press E to spawn vortex).</p>
+              </div>
+              <button class="btn btn-buy" id="btn-blackHole" onclick="buyUpgrade('blackHole')">
+                <span id="cost-blackHole">600 F</span>
+              </button>
+            </div>
             <div
               class="p-8 text-center text-gray-500 text-sm font-bold italic opacity-60"
             >
@@ -1624,7 +2031,7 @@
                     only.
                   </p>
                 </div>
-                <button
+                  <button
                   id="btn-buy-twowin"
                   class="btn btn-buy !bg-[#a855f7] !text-white shadow-[0_0_15px_rgba(168,85,247,0.4)]"
                   onclick="buyScratcherTicket('twowin')"
@@ -1801,7 +2208,7 @@
                         <div id="tw-odds-normal" class="text-gray-400 text-xs">
                           80%
                         </div>
-                        <div class="text-[#ff0055] text-sm">20 F</div>
+                        <div class="text-[#ff0055] text-sm">15 F</div>
                       </div>
                     </div>
                     <div class="flex flex-col items-center gap-2">
@@ -1816,7 +2223,7 @@
                         <div id="tw-odds-stinger" class="text-gray-400 text-xs">
                           15%
                         </div>
-                        <div class="text-[#ffff00] text-sm">50 F</div>
+                        <div class="text-[#ffff00] text-sm">35 F</div>
                       </div>
                     </div>
                     <div class="flex flex-col items-center gap-2">
@@ -1830,7 +2237,7 @@
                         <div id="tw-odds-bouncer" class="text-gray-400 text-xs">
                           5%
                         </div>
-                        <div class="text-[#00ffff] text-sm">100 F</div>
+                        <div class="text-[#00ffff] text-sm">70 F</div>
                       </div>
                     </div>
                   </div>
@@ -2183,7 +2590,7 @@
                       ></div>
                       <div class="text-center">
                         <div class="text-gray-400 text-xs">40%</div>
-                        <div class="text-[#ff0055] text-sm">-150</div>
+                        <div class="text-[#ff0055] text-sm">-105</div>
                       </div>
                     </div>
                     <div class="flex flex-col items-center gap-2">
@@ -2196,7 +2603,7 @@
                       ></div>
                       <div class="text-center">
                         <div class="text-gray-400 text-xs">25%</div>
-                        <div class="text-[#ffff00] text-sm">+10</div>
+                        <div class="text-[#ffff00] text-sm">+5</div>
                       </div>
                     </div>
                     <div class="flex flex-col items-center gap-2">
@@ -2208,7 +2615,7 @@
                       </div>
                       <div class="text-center">
                         <div class="text-gray-400 text-xs">20%</div>
-                        <div class="text-[#00ffff] text-sm">+30</div>
+                        <div class="text-[#00ffff] text-sm">+20</div>
                       </div>
                     </div>
                     <div class="flex flex-col items-center gap-2">
@@ -2235,7 +2642,7 @@
                       </div>
                       <div class="text-center">
                         <div class="text-gray-400 text-xs">10%</div>
-                        <div class="text-[#ff8800] text-sm">+50</div>
+                        <div class="text-[#ff8800] text-sm">+35</div>
                       </div>
                     </div>
                     <div class="flex flex-col items-center gap-2">
@@ -2248,7 +2655,7 @@
                       ></div>
                       <div class="text-center">
                         <div class="text-gray-400 text-xs">5%</div>
-                        <div class="text-[#a020f0] text-sm">+75</div>
+                        <div class="text-[#a020f0] text-sm">+50</div>
                       </div>
                     </div>
                   </div>
@@ -2427,7 +2834,7 @@
                       ></div>
                       <div class="text-center">
                         <div class="text-gray-400 text-xs">40%</div>
-                        <div class="text-[#ff0055] text-sm">-150</div>
+                        <div class="text-[#ff0055] text-sm">-105</div>
                       </div>
                     </div>
                     <div class="flex flex-col items-center gap-2">
@@ -2440,7 +2847,7 @@
                       ></div>
                       <div class="text-center">
                         <div class="text-gray-400 text-xs">25%</div>
-                        <div class="text-[#ff0055] text-sm">-50</div>
+                        <div class="text-[#ff0055] text-sm">-35</div>
                       </div>
                     </div>
                     <div class="flex flex-col items-center gap-2">
@@ -2452,7 +2859,7 @@
                       </div>
                       <div class="text-center">
                         <div class="text-gray-400 text-xs">20%</div>
-                        <div class="text-[#00ffff] text-sm">+300</div>
+                        <div class="text-[#00ffff] text-sm">+210</div>
                       </div>
                     </div>
                     <div class="flex flex-col items-center gap-2">
@@ -2479,7 +2886,7 @@
                       </div>
                       <div class="text-center">
                         <div class="text-gray-400 text-xs">10%</div>
-                        <div class="text-[#ff8800] text-sm">+400</div>
+                        <div class="text-[#ff8800] text-sm">+280</div>
                       </div>
                     </div>
                     <div class="flex flex-col items-center gap-2">
@@ -2492,7 +2899,7 @@
                       ></div>
                       <div class="text-center">
                         <div class="text-gray-400 text-xs">5%</div>
-                        <div class="text-[#a020f0] text-sm">+500</div>
+                        <div class="text-[#a020f0] text-sm">+350</div>
                       </div>
                     </div>
                   </div>
@@ -2823,7 +3230,7 @@
 
 
     <script type="module">
-      const TEST_MODE = false;
+      const TEST_MODE = true;
 
       import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
       import {
@@ -2941,11 +3348,38 @@
           scratcherSize: 0,
           scratcherStrength: 0,
           scratcherLuck: 0,
+          knockback: 0,
+          slowField: 0,
+          lastStand: 0,
+          bountyTargets: 0,
+          shieldEcho: 0,
+          reactiveShields: 0,
+          shieldRicochet: 0,
+          orbitalMines: 0,
+          chainLightning: 0,
+          revengeBlast: 0,
+          counterPulse: 0,
+          fluxVacuum: 0,
+          enemyRadar: 0,
+          greedMode: 0,
+          interest: 0,
+          innerShield: 0,
+          coreOverdrive: 0,
+          timeFreeze: 0,
+          blackHole: 0,
+          shieldSpikes: 0,
+          refractorBeam: 0,
+          empDynamo: 0,
+          solarFlare: 0,
+          suddenDeath: 0,
+          perfectSweep: 0,
         },
+        greedModeActive: false,
+        suddenDeathActive: false,
         leaderboard: [],
         lifetimeFlux: 0,
         playtime: 0,
-        bossesDefeated: 0,
+        bossesDefeated: [],
         maxPerfectWave: 0,
         barricadesBuilt: 0,
         fastestWaveTime: 9999,
@@ -3193,96 +3627,112 @@
           default: {
             id: "default",
             name: "Standard Threats",
+            color: "none",
             aura: "none",
             rarity: "Common",
           },
           inferno: {
             id: "inferno",
             name: "Inferno Aura",
+            color: "#ff4500",
             aura: "#ff4500",
             rarity: "Common",
           },
           frost: {
             id: "frost",
             name: "Frostbite Aura",
+            color: "#00ffff",
             aura: "#00ffff",
             rarity: "Rare",
           },
           toxic: {
             id: "toxic",
             name: "Toxic Trail",
+            color: "#32cd32",
             aura: "#32cd32",
             rarity: "Epic",
           },
           royal: {
             id: "royal",
             name: "Royal Guard",
+            color: "#fbbf24",
             aura: "#fbbf24",
             rarity: "Legendary",
           },
           phantom: {
             id: "phantom",
             name: "Phantom Echo",
+            color: "#8a2be2",
             aura: "#8a2be2",
             rarity: "Mythic",
           },
           kiwi: {
             id: "kiwi",
             name: "Kiwi Swarm",
+            color: "#8ee53f",
             aura: "#8ee53f",
             rarity: "Common",
           },
           worm: {
             id: "worm",
             name: "Worm Minions",
+            color: "#ffb6c1",
             aura: "#ffb6c1",
             rarity: "Common",
           },
           static: {
             id: "static",
             name: "Static Noise",
+            color: "#888",
             aura: "#888",
             rarity: "Uncommon",
           },
           mud: {
             id: "mud",
             name: "Mud Splatter",
+            color: "#70543e",
             aura: "#70543e",
             rarity: "Uncommon",
           },
           electric: {
             id: "electric",
             name: "High Voltage",
+            color: "#ffff00",
             aura: "#ffff00",
             rarity: "Rare",
           },
           cherry: {
             id: "cherry",
             name: "Cherry Blossom",
+            color: "#ffb7c5",
             aura: "#ffb7c5",
             rarity: "Rare",
           },
           spectral: {
             id: "spectral",
             name: "Spectral",
+            color: "#add8e6",
             aura: "#add8e6",
             rarity: "Epic",
           },
           vampire: {
             id: "vampire",
             name: "Vampiric",
+            color: "#800000",
             aura: "#800000",
             rarity: "Epic",
           },
           golden: {
             id: "golden",
             name: "Golden Horde",
+            color: "#ffd700",
             aura: "#ffd700",
             rarity: "Legendary",
           },
           celestial: {
             id: "celestial",
             name: "Celestial Beings",
+            color: "#fff",
             aura: "#fff",
             rarity: "Mythic",
           },
@@ -3833,6 +4283,17 @@
       ];
 
       function initializeSkinsData() {
+        if (typeof saveData.bossesDefeated === "number") {
+          const num = saveData.bossesDefeated;
+          saveData.bossesDefeated = [];
+          for (let i = 1; i <= num; i++) {
+            if (i <= 10) saveData.bossesDefeated.push(i * 10);
+          }
+        }
+        if (!saveData.bossesDefeated || !Array.isArray(saveData.bossesDefeated)) {
+          saveData.bossesDefeated = [];
+        }
+
         if (!saveData.migratedToV29) {
           saveData.currentWave = 1;
           saveData.highestWaveReached = 1;
@@ -3891,6 +4352,37 @@
           saveData.upgrades.scratcherStrength = 0;
         if (saveData.upgrades.scratcherLuck === undefined)
           saveData.upgrades.scratcherLuck = 0;
+        if (saveData.upgrades.knockback === undefined)
+          saveData.upgrades.knockback = 0;
+        if (saveData.upgrades.slowField === undefined)
+          saveData.upgrades.slowField = 0;
+        if (saveData.upgrades.lastStand === undefined)
+          saveData.upgrades.lastStand = 0;
+        if (saveData.upgrades.bountyTargets === undefined)
+          saveData.upgrades.bountyTargets = 0;
+        if (saveData.upgrades.shieldEcho === undefined) saveData.upgrades.shieldEcho = 0;
+        if (saveData.upgrades.reactiveShields === undefined) saveData.upgrades.reactiveShields = 0;
+        if (saveData.upgrades.shieldRicochet === undefined) saveData.upgrades.shieldRicochet = 0;
+        if (saveData.upgrades.orbitalMines === undefined) saveData.upgrades.orbitalMines = 0;
+        if (saveData.upgrades.chainLightning === undefined) saveData.upgrades.chainLightning = 0;
+        if (saveData.upgrades.revengeBlast === undefined) saveData.upgrades.revengeBlast = 0;
+        if (saveData.upgrades.counterPulse === undefined) saveData.upgrades.counterPulse = 0;
+        if (saveData.upgrades.fluxVacuum === undefined) saveData.upgrades.fluxVacuum = 0;
+        if (saveData.upgrades.enemyRadar === undefined) saveData.upgrades.enemyRadar = 0;
+        if (saveData.upgrades.greedMode === undefined) saveData.upgrades.greedMode = 0;
+        if (saveData.upgrades.interest === undefined) saveData.upgrades.interest = 0;
+        if (saveData.upgrades.innerShield === undefined) saveData.upgrades.innerShield = 0;
+        if (saveData.upgrades.coreOverdrive === undefined) saveData.upgrades.coreOverdrive = 0;
+        if (saveData.upgrades.timeFreeze === undefined) saveData.upgrades.timeFreeze = 0;
+        if (saveData.upgrades.blackHole === undefined) saveData.upgrades.blackHole = 0;
+        if (saveData.upgrades.shieldSpikes === undefined) saveData.upgrades.shieldSpikes = 0;
+        if (saveData.upgrades.refractorBeam === undefined) saveData.upgrades.refractorBeam = 0;
+        if (saveData.upgrades.empDynamo === undefined) saveData.upgrades.empDynamo = 0;
+        if (saveData.upgrades.solarFlare === undefined) saveData.upgrades.solarFlare = 0;
+        if (saveData.upgrades.suddenDeath === undefined) saveData.upgrades.suddenDeath = 0;
+        if (saveData.upgrades.perfectSweep === undefined) saveData.upgrades.perfectSweep = 0;
+        if (saveData.greedModeActive === undefined) saveData.greedModeActive = false;
+        if (saveData.suddenDeathActive === undefined) saveData.suddenDeathActive = false;
         if (saveData.cratesUnboxed === undefined) saveData.cratesUnboxed = 0;
         if (saveData.ticketsWon === undefined) saveData.ticketsWon = 0;
         if (saveData.ticketsLost === undefined) saveData.ticketsLost = 0;
@@ -3966,6 +4458,25 @@
         isRolling = false,
         timeSinceLastAction = 0,
         shieldAlpha = 1.0;
+
+      // New Gameplay Variables
+      let ghostShields = [];
+      let mines = [];
+      let lightningEffects = [];
+      let pulseEffects = [];
+      let collectibleFlux = [];
+      let lasers = [];
+      let timeFreezeTimer = 0;
+      let timeFreezeCooldown = 0;
+      let blackHoleTimer = 0;
+      let blackHoleCooldown = 0;
+      let blackHoleX = 0;
+      let blackHoleY = 0;
+      let barricadesLostThisWave = 0;
+      let nextEnemySpawnAngle = null;
+      let coreOverdriveTimer = 0;
+      let solarFlareTimer = 0;
+      let blocksCount = 0;
 
       const SHIELD_RADIUS = 80;
       const BARRICADE_BASE_RADIUS = 130;
@@ -4197,7 +4708,7 @@
             leaderboard: [],
             lifetimeFlux: 0,
             playtime: 0,
-            bossesDefeated: 0,
+            bossesDefeated: [],
             maxPerfectWave: 0,
             barricadesBuilt: 0,
             fastestWaveTime: 9999,
@@ -4565,7 +5076,7 @@
           leaderboard: [],
           lifetimeFlux: 0,
           playtime: 0,
-          bossesDefeated: 0,
+          bossesDefeated: [],
           maxPerfectWave: 0,
           barricadesBuilt: 0,
           fastestWaveTime: 9999,
@@ -4711,10 +5222,38 @@
         });
         bosses = bosses.filter((b) => b.hp > 0);
       }
+      function triggerTimeFreeze() {
+        if (saveData.upgrades.timeFreeze === 1 && timeFreezeCooldown <= 0 && gameActive && !isPaused) {
+          timeFreezeTimer = 2.5;
+          timeFreezeCooldown = 45;
+          playSound("ping");
+          floatingTexts.push(new FloatingText(centerX, centerY - 80, "TIME FREEZE!", "#00ffff"));
+        }
+      }
+      window.triggerTimeFreeze = triggerTimeFreeze;
+
+      function triggerBlackHole() {
+        if (saveData.upgrades.blackHole === 1 && blackHoleCooldown <= 0 && gameActive && !isPaused) {
+          blackHoleTimer = 3.0;
+          blackHoleCooldown = 45;
+          const angle = Math.random() * Math.PI * 2;
+          const dx = Math.cos(angle);
+          const dy = Math.sin(angle);
+          const distToEdge = Math.min((width/2) / (Math.abs(dx) || 0.001), (height/2) / (Math.abs(dy) || 0.001));
+          blackHoleX = centerX + dx * distToEdge;
+          blackHoleY = centerY + dy * distToEdge;
+          playSound("ping");
+          floatingTexts.push(new FloatingText(centerX, centerY - 80, "VORTEX SPAWNED!", "#8b5cf6"));
+        }
+      }
+      window.triggerBlackHole = triggerBlackHole;
       function addEMPCharge(amount) {
         if (!saveData.upgrades.emp) return;
+        const dynamoLv = saveData.upgrades.empDynamo || 0;
+        const chargeMult = 1 + dynamoLv * 0.15;
+        const scaledAmount = amount * chargeMult;
         if (empCharge < empMax) {
-          empCharge = Math.min(empMax, empCharge + amount);
+          empCharge = Math.min(empMax, empCharge + scaledAmount);
           updateEMPUI();
         }
       }
@@ -4733,8 +5272,31 @@
         if (gameActive && !isPaused) {
           timeSinceLastAction = 0;
         }
-        let clickedDenier = false;
+        let clickedSpecial = false;
+        
+        // Check Gold Shard Click
         if (gameActive && !isPaused) {
+          const rect = canvas.getBoundingClientRect();
+          let clickX = (e.clientX - rect.left) * (canvas.width / rect.width);
+          let clickY = (e.clientY - rect.top) * (canvas.height / rect.height);
+          for (let i = collectibleFlux.length - 1; i >= 0; i--) {
+            const shard = collectibleFlux[i];
+            if (Math.hypot(clickX - shard.x, clickY - shard.y) < 25) {
+              const multiplier = saveData.suddenDeathActive ? 3 : (saveData.greedModeActive ? 2 : 1);
+              const val = shard.val * multiplier;
+              currentRunFlux += val;
+              saveData.lifetimeFlux += val;
+              scoreEl.innerText = currentRunFlux;
+              playSound("ping");
+              floatingTexts.push(new FloatingText(shard.x, shard.y, `+${val}`, "#ffd700"));
+              collectibleFlux.splice(i, 1);
+              clickedSpecial = true;
+              break;
+            }
+          }
+        }
+        
+        if (!clickedSpecial && gameActive && !isPaused) {
           const rect = canvas.getBoundingClientRect();
           let deniers = enemies.filter(enemy => enemy.type === "denier");
           for (let d of deniers) {
@@ -4749,12 +5311,12 @@
                  let idx = enemies.indexOf(d);
                  if (idx > -1) enemies.splice(idx, 1);
               }
-              clickedDenier = true;
+              clickedSpecial = true;
               break;
             }
           }
         }
-        if (!clickedDenier) {
+        if (!clickedSpecial) {
           handleInput(e);
         }
       });
@@ -4767,29 +5329,49 @@
           }
           if (!gameActive || isPaused) return;
           
-          let clickedDenier = false;
+          let clickedSpecial = false;
           if (e.touches && e.touches[0]) {
              let touch = e.touches[0];
              const rect = canvas.getBoundingClientRect();
-             let deniers = enemies.filter(enemy => enemy.type === "denier");
-             for (let d of deniers) {
-                let clickX = (touch.clientX - rect.left) * (canvas.width / rect.width);
-                let clickY = (touch.clientY - rect.top) * (canvas.height / rect.height);
-                let dist = Math.hypot(clickX - d.x, clickY - d.y);
-                if (dist < d.size + 25) {
-                   d.hp--;
-                   createExplosion(d.x, d.y, d.color, 10);
-                   playSound(400, "sine", 0.05, 0.1);
-                   if (d.hp <= 0) {
-                      let idx = enemies.indexOf(d);
-                      if (idx > -1) enemies.splice(idx, 1);
-                   }
-                   clickedDenier = true;
-                   break;
-                }
+             let clickX = (touch.clientX - rect.left) * (canvas.width / rect.width);
+             let clickY = (touch.clientY - rect.top) * (canvas.height / rect.height);
+             
+             // Check gold shard first
+             for (let i = collectibleFlux.length - 1; i >= 0; i--) {
+               const shard = collectibleFlux[i];
+               if (Math.hypot(clickX - shard.x, clickY - shard.y) < 25) {
+                 const multiplier = saveData.suddenDeathActive ? 3 : (saveData.greedModeActive ? 2 : 1);
+                 const val = shard.val * multiplier;
+                 currentRunFlux += val;
+                 saveData.lifetimeFlux += val;
+                 scoreEl.innerText = currentRunFlux;
+                 playSound("ping");
+                 floatingTexts.push(new FloatingText(shard.x, shard.y, `+${val}`, "#ffd700"));
+                 collectibleFlux.splice(i, 1);
+                 clickedSpecial = true;
+                 break;
+               }
+             }
+             
+             if (!clickedSpecial) {
+               let deniers = enemies.filter(enemy => enemy.type === "denier");
+               for (let d of deniers) {
+                  let dist = Math.hypot(clickX - d.x, clickY - d.y);
+                  if (dist < d.size + 25) {
+                     d.hp--;
+                     createExplosion(d.x, d.y, d.color, 10);
+                     playSound(400, "sine", 0.05, 0.1);
+                     if (d.hp <= 0) {
+                        let idx = enemies.indexOf(d);
+                        if (idx > -1) enemies.splice(idx, 1);
+                     }
+                     clickedSpecial = true;
+                     break;
+                  }
+               }
              }
           }
-          if (clickedDenier) {
+          if (clickedSpecial) {
              e.preventDefault();
              return;
           }
@@ -4826,6 +5408,18 @@
             if (document.activeElement) document.activeElement.blur();
           }
           if (gameActive && !isPaused) triggerEMP();
+        }
+        if (e.key === "f" || e.key === "F") {
+          if (e.target.tagName !== "INPUT") {
+            e.preventDefault();
+          }
+          if (gameActive && !isPaused) triggerTimeFreeze();
+        }
+        if (e.key === "e" || e.key === "E") {
+          if (e.target.tagName !== "INPUT") {
+            e.preventDefault();
+          }
+          if (gameActive && !isPaused) triggerBlackHole();
         }
       });
       window.addEventListener("beforeunload", () => {
@@ -4892,6 +5486,10 @@
           scratcherSize: 0,
           scratcherStrength: 0,
           scratcherLuck: 0,
+          knockback: 0,
+          slowField: 0,
+          lastStand: 0,
+          bountyTargets: 0,
         };
         document.getElementById("lvl-width").innerText = up.width;
         document.getElementById("cost-width").innerText =
@@ -4924,6 +5522,30 @@
         document.getElementById("lvl-barricadeRegen").innerText = bRegenLv;
         document.getElementById("cost-barricadeRegen").innerText =
           bRegenLv >= 5 ? "MAX" : (bRegenLv + 1) * 45 + " F";
+
+        let kbLv = up.knockback || 0;
+        const kbCosts = [30, 55, 90, 140, 200];
+        document.getElementById("lvl-knockback").innerText = kbLv;
+        document.getElementById("cost-knockback").innerText =
+          kbLv >= 5 ? "MAX" : kbCosts[kbLv] + " F";
+
+        let sfLv = up.slowField || 0;
+        const sfCosts = [100, 200, 350, 550];
+        document.getElementById("lvl-slowField").innerText = sfLv;
+        document.getElementById("cost-slowField").innerText =
+          sfLv >= 4 ? "MAX" : sfCosts[sfLv] + " F";
+
+        let lsLv = up.lastStand || 0;
+        const lsCosts = [60, 130, 250];
+        document.getElementById("lvl-lastStand").innerText = lsLv;
+        document.getElementById("cost-lastStand").innerText =
+          lsLv >= 3 ? "MAX" : lsCosts[lsLv] + " F";
+
+        let btLv = up.bountyTargets || 0;
+        const btCosts = [45, 100, 200];
+        document.getElementById("lvl-bountyTargets").innerText = btLv;
+        document.getElementById("cost-bountyTargets").innerText =
+          btLv >= 3 ? "MAX" : btCosts[btLv] + " F";
         let sSizeLv = up.scratcherSize || 0;
         document.getElementById("lvl-scratcherSize").innerText = sSizeLv;
         document.getElementById("cost-scratcherSize").innerText =
@@ -4936,6 +5558,163 @@
         document.getElementById("lvl-scratcherLuck").innerText = sLuckLv;
         document.getElementById("cost-scratcherLuck").innerText =
           sLuckLv >= 10 ? "MAX" : 75 + sLuckLv * 75 + " F";
+
+        let seLv = up.shieldEcho || 0;
+        const seCosts = [150, 300, 500];
+        document.getElementById("lvl-shieldEcho").innerText = seLv;
+        document.getElementById("cost-shieldEcho").innerText =
+          seLv >= 3 ? "MAX" : seCosts[seLv] + " F";
+
+        let rsLv = up.reactiveShields || 0;
+        const rsCosts = [80, 150, 250, 400];
+        document.getElementById("lvl-reactiveShields").innerText = rsLv;
+        document.getElementById("cost-reactiveShields").innerText =
+          rsLv >= 4 ? "MAX" : rsCosts[rsLv] + " F";
+
+        let sRicLv = up.shieldRicochet || 0;
+        const sRicCosts = [200, 400, 700];
+        document.getElementById("lvl-shieldRicochet").innerText = sRicLv;
+        document.getElementById("cost-shieldRicochet").innerText =
+          sRicLv >= 3 ? "MAX" : sRicCosts[sRicLv] + " F";
+
+        let omLv = up.orbitalMines || 0;
+        const omCosts = [100, 200, 350, 550];
+        document.getElementById("lvl-orbitalMines").innerText = omLv;
+        document.getElementById("cost-orbitalMines").innerText =
+          omLv >= 4 ? "MAX" : omCosts[omLv] + " F";
+
+        let clLv = up.chainLightning || 0;
+        const clCosts = [120, 220, 350, 500];
+        document.getElementById("lvl-chainLightning").innerText = clLv;
+        document.getElementById("cost-chainLightning").innerText =
+          clLv >= 4 ? "MAX" : clCosts[clLv] + " F";
+
+        let rbLv = up.revengeBlast || 0;
+        const rbCosts = [75, 175, 300];
+        document.getElementById("lvl-revengeBlast").innerText = rbLv;
+        document.getElementById("cost-revengeBlast").innerText =
+          rbLv >= 3 ? "MAX" : rbCosts[rbLv] + " F";
+
+        let cpLv = up.counterPulse || 0;
+        const cpCosts = [60, 100, 160, 240, 350];
+        document.getElementById("lvl-counterPulse").innerText = cpLv;
+        document.getElementById("cost-counterPulse").innerText =
+          cpLv >= 5 ? "MAX" : cpCosts[cpLv] + " F";
+
+        let fvLv = up.fluxVacuum || 0;
+        const fvCosts = [40, 90, 160];
+        document.getElementById("lvl-fluxVacuum").innerText = fvLv;
+        document.getElementById("cost-fluxVacuum").innerText =
+          fvLv >= 3 ? "MAX" : fvCosts[fvLv] + " F";
+
+        let erLv = up.enemyRadar || 0;
+        document.getElementById("lvl-enemyRadar").innerText = erLv;
+        document.getElementById("cost-enemyRadar").innerText =
+          erLv >= 1 ? "MAX" : "150 F";
+
+        let gmLv = up.greedMode || 0;
+        document.getElementById("lvl-greedMode").innerText = gmLv;
+        document.getElementById("cost-greedMode").innerText =
+          gmLv >= 1 ? "MAX" : "200 F";
+
+        let intLv = up.interest || 0;
+        const intCosts = [50, 100, 175, 275, 400];
+        document.getElementById("lvl-interest").innerText = intLv;
+        document.getElementById("cost-interest").innerText =
+          intLv >= 5 ? "MAX" : intCosts[intLv] + " F";
+
+        let ishLv = up.innerShield || 0;
+        document.getElementById("lvl-innerShield").innerText = ishLv;
+        document.getElementById("cost-innerShield").innerText =
+          ishLv >= 1 ? "MAX" : "750 F";
+
+        let coLv = up.coreOverdrive || 0;
+        const coCosts = [300, 500, 800];
+        document.getElementById("lvl-coreOverdrive").innerText = coLv;
+        document.getElementById("cost-coreOverdrive").innerText =
+          coLv >= 3 ? "MAX" : coCosts[coLv] + " F";
+
+        let tfLv = up.timeFreeze || 0;
+        document.getElementById("lvl-timeFreeze").innerText = tfLv;
+        document.getElementById("cost-timeFreeze").innerText =
+          tfLv >= 1 ? "MAX" : "400 F";
+
+        let bhLv = up.blackHole || 0;
+        document.getElementById("lvl-blackHole").innerText = bhLv;
+        document.getElementById("cost-blackHole").innerText =
+          bhLv >= 1 ? "MAX" : "600 F";
+
+        let ssLv = up.shieldSpikes || 0;
+        const ssCosts = [100, 200, 350];
+        document.getElementById("lvl-shieldSpikes").innerText = ssLv;
+        document.getElementById("cost-shieldSpikes").innerText =
+          ssLv >= 3 ? "MAX" : ssCosts[ssLv] + " F";
+
+        let rbeamLv = up.refractorBeam || 0;
+        const rbeamCosts = [180, 320, 500];
+        document.getElementById("lvl-refractorBeam").innerText = rbeamLv;
+        document.getElementById("cost-refractorBeam").innerText =
+          rbeamLv >= 3 ? "MAX" : rbeamCosts[rbeamLv] + " F";
+
+        let edynLv = up.empDynamo || 0;
+        const edynCosts = [120, 220, 380];
+        document.getElementById("lvl-empDynamo").innerText = edynLv;
+        document.getElementById("cost-empDynamo").innerText =
+          edynLv >= 3 ? "MAX" : edynCosts[edynLv] + " F";
+
+        let sflareLv = up.solarFlare || 0;
+        const sflareCosts = [150, 250, 400];
+        document.getElementById("lvl-solarFlare").innerText = sflareLv;
+        document.getElementById("cost-solarFlare").innerText =
+          sflareLv >= 3 ? "MAX" : sflareCosts[sflareLv] + " F";
+
+        let sdLv = up.suddenDeath || 0;
+        document.getElementById("lvl-suddenDeath").innerText = sdLv;
+        document.getElementById("cost-suddenDeath").innerText =
+          sdLv >= 1 ? "MAX" : "250 F";
+
+        let psweepLv = up.perfectSweep || 0;
+        const psweepCosts = [80, 150, 250];
+        document.getElementById("lvl-perfectSweep").innerText = psweepLv;
+        document.getElementById("cost-perfectSweep").innerText =
+          psweepLv >= 3 ? "MAX" : psweepCosts[psweepLv] + " F";
+
+        if (gmLv >= 1) {
+          document.getElementById("btn-greedMode").classList.add("hidden");
+          const gmToggle = document.getElementById("btn-toggle-greed");
+          if (gmToggle) {
+            gmToggle.classList.remove("hidden");
+            gmToggle.innerText = saveData.greedModeActive ? "GREED: ON" : "GREED: OFF";
+          }
+        } else {
+          document.getElementById("btn-greedMode").classList.remove("hidden");
+          const gmToggle = document.getElementById("btn-toggle-greed");
+          if (gmToggle) gmToggle.classList.add("hidden");
+        }
+
+        if (sdLv >= 1) {
+          document.getElementById("btn-suddenDeath").classList.add("hidden");
+          const sdToggle = document.getElementById("btn-toggle-sudden");
+          if (sdToggle) {
+            sdToggle.classList.remove("hidden");
+            sdToggle.innerText = saveData.suddenDeathActive ? "HARDCORE: ON" : "HARDCORE: OFF";
+          }
+        } else {
+          document.getElementById("btn-suddenDeath").classList.remove("hidden");
+          const sdToggle = document.getElementById("btn-toggle-sudden");
+          if (sdToggle) sdToggle.classList.add("hidden");
+        }
+
+        const tfBtn = document.getElementById("btn-active-timeFreeze");
+        if (tfBtn) {
+          if (tfLv >= 1) tfBtn.classList.remove("hidden");
+          else tfBtn.classList.add("hidden");
+        }
+        const bhBtn = document.getElementById("btn-active-blackHole");
+        if (bhBtn) {
+          if (bhLv >= 1) bhBtn.classList.remove("hidden");
+          else bhBtn.classList.add("hidden");
+        }
 
         // Dynamically update scratcher odds display based on luck
         const lk = sLuckLv;
@@ -5026,12 +5805,38 @@
         checkLock("empCooldown", empLv >= 1);
         checkLock("healthRegen", up.health >= 1);
         checkLock("barricadeRegen", saveData.barricadeTotal >= 1);
+        checkLock("knockback", up.speed >= 2 && up.width >= 2);
+        checkLock("slowField", up.health >= 2);
+        checkLock("lastStand", up.health >= 3);
+        checkLock("bountyTargets", highestWave >= 6);
         const showScratcherUpgrades =
           highestWave >= 3 && saveData.hasBoughtScratcher;
         checkLock("scratcherHeader", showScratcherUpgrades);
         checkLock("scratcherSize", showScratcherUpgrades);
         checkLock("scratcherStrength", showScratcherUpgrades);
         checkLock("scratcherLuck", showScratcherUpgrades);
+
+        checkLock("shieldEcho", up.knockback >= 2 && up.width >= 3);
+        checkLock("reactiveShields", up.health >= 2 && up.speed >= 2);
+        checkLock("shieldRicochet", up.knockback >= 2 && up.width >= 2);
+        checkLock("orbitalMines", highestWave >= 5 && saveData.barricadeTotal >= 2);
+        checkLock("chainLightning", up.width >= 3 && up.speed >= 3);
+        checkLock("revengeBlast", up.health >= 3);
+        checkLock("counterPulse", up.width >= 2 && up.speed >= 2);
+        checkLock("fluxVacuum", highestWave >= 3 && up.bountyTargets >= 1);
+        checkLock("interest", highestWave >= 4 && saveData.barricadeTotal >= 1);
+        checkLock("coreOverdrive", highestWave >= 12 && up.health >= 3);
+        checkLock("shieldSpikes", up.width >= 2 && up.knockback >= 2);
+        checkLock("refractorBeam", highestWave >= 10 && up.width >= 3 && up.speed >= 3);
+        checkLock("empDynamo", empLv >= 1);
+        checkLock("solarFlare", highestWave >= 12 && empLv >= 1 && empCdLv >= 2);
+        checkLock("perfectSweep", highestWave >= 4 && saveData.barricadeTotal >= 1);
+        checkLock("enemyRadar", highestWave >= 6);
+        checkLock("greedMode", highestWave >= 8 && up.bountyTargets >= 2);
+        checkLock("innerShield", highestWave >= 10 && up.width >= 3 && up.multi >= 2);
+        checkLock("timeFreeze", highestWave >= 14 && up.speed >= 3);
+        checkLock("blackHole", highestWave >= 16 && empLv >= 1);
+        checkLock("suddenDeath", highestWave >= 10 && up.health >= 3);
 
         const checkThreat = (id, waveReq) => {
           const el = document.getElementById(`threat-${id}`);
@@ -5569,15 +6374,15 @@ default: return ``;
           });
           if (maxCount >= 2) {
             if (winningSymbol === "normal") {
-              payout = 5;
+              payout = 15;
               resultColor = "#ff0055";
             }
             if (winningSymbol === "stinger") {
-              payout = 15;
+              payout = 35;
               resultColor = "#ffff00";
             }
             if (winningSymbol === "bouncer") {
-              payout = 30;
+              payout = 70;
               resultColor = "#00ffff";
             }
             resultText = `MATCH! WON ${payout} F!`;
@@ -5599,22 +6404,22 @@ default: return ``;
             normal: 0,
             stinger: 0.5,
             bouncer: 1.0,
-            splitter: 1.5,
+            splitter: 2.0,
           };
           let baseMult = 0;
           if (maxCount === 5) {
-            baseMult = 2;
+            baseMult = 3;
             resultColor = "#00ff00";
           } else if (maxCount === 4) {
-            baseMult = 1.5;
+            baseMult = 2;
             resultColor = "#00ffff";
           } else if (maxCount === 3) {
-            baseMult = 1;
+            baseMult = 1.5;
             resultColor = "#fbbf24";
           }
           if (baseMult > 0) {
             let totalMult = baseMult + bonusMap[winningSymbol];
-            payout = Math.floor(15 * totalMult);
+            payout = Math.floor(10 * totalMult);
             resultText = `MATCH! WON ${payout} F! (${totalMult}x)`;
           } else {
             resultText = "NO MATCH.";
@@ -5622,10 +6427,10 @@ default: return ``;
         } else if (currentScratcherType === "tree") {
           currentScratchSymbols.forEach((sym) => {
             if (sym === "normal") payout -= 105;
-            if (sym === "stinger") payout += 2;
-            if (sym === "bouncer") payout += 10;
-            if (sym === "splitter") payout += 15;
-            if (sym === "phantom") payout += 25;
+            if (sym === "stinger") payout += 5;
+            if (sym === "bouncer") payout += 20;
+            if (sym === "splitter") payout += 35;
+            if (sym === "phantom") payout += 50;
           });
           if (payout > 0) {
             resultText = `TOTAL REWARD: +${payout} F!`;
@@ -5644,12 +6449,13 @@ default: return ``;
           const matcherPayouts = {
             normal: -105,
             stinger: -35,
-            bouncer: 100,
-            splitter: 125,
-            phantom: 150,
+            bouncer: 210,
+            splitter: 280,
+            phantom: 350,
           };
           let rightMatched = [false, false, false];
           left.forEach((leftSym) => {
+            if (matchCount > 0) return;
             let foundMatch = false;
             for (let i = 0; i < right.length; i++) {
               if (!rightMatched[i] && right[i] === leftSym) {
@@ -5826,13 +6632,17 @@ default: return ``;
         const categoryLabel =
           item.c === "core"
             ? "Core Skin"
-            : (item.c === "shield" || item.c === "shield2" || item.c === "shield3")
-              ? "Shield Skin"
-              : item.c === "lives"
-                ? "Lives Rings Skin"
-                : item.c === "worldcup"
-                  ? "World Cup Theme"
-                  : "Enemy Theme";
+            : item.c === "shield"
+              ? "Shield Skin 1"
+              : item.c === "shield2"
+                ? "Shield Skin 2"
+                : item.c === "shield3"
+                  ? "Shield Skin 3"
+                  : item.c === "lives"
+                    ? "Lives Rings Skin"
+                    : item.c === "worldcup"
+                      ? "World Cup Theme"
+                      : "Enemy Theme";
         if (!saveData.unlockedSkins) initializeSkinsData();
         if (saveData.unlockedSkins[item.c].includes(item.id)) {
           const refund = Math.ceil(crateCost / 2);
@@ -5955,8 +6765,7 @@ default: return ``;
           Object.keys(SKINS.core || {}).length +
           Object.keys(SKINS.shield || {}).length * 3 +
           Object.keys(SKINS.enemies || {}).length +
-          Object.keys(SKINS.lives || {}).length +
-          Object.keys(SKINS.worldcup || {}).length
+          Object.keys(SKINS.lives || {}).length
         );
       }
 
@@ -6145,7 +6954,7 @@ default: return ``;
         }
         let cosmeticsCount = 0;
         if (saveData.unlockedSkins) {
-          ["core", "shield", "shield2", "shield3", "enemies", "lives", "worldcup"].forEach((cat) => {
+          ["core", "shield", "shield2", "shield3", "enemies", "lives"].forEach((cat) => {
             if (saveData.unlockedSkins[cat])
               cosmeticsCount += saveData.unlockedSkins[cat].length;
           });
@@ -6159,7 +6968,7 @@ default: return ``;
           lifetimeFlux: saveData.lifetimeFlux || 0,
           currentFlux: saveData.flux || 0,
           playtime: saveData.playtime || 0,
-          bossesDefeated: saveData.bossesDefeated || 0,
+          bossesDefeated: Array.isArray(saveData.bossesDefeated) ? saveData.bossesDefeated.length : (saveData.bossesDefeated || 0),
           cratesUnboxed: saveData.cratesUnboxed || 0,
           ticketsWon: saveData.ticketsWon || 0,
           ticketsLost: saveData.ticketsLost || 0,
@@ -6271,6 +7080,125 @@ default: return ``;
           cost = ((up.barricadeRegen || 0) + 1) * 45;
           max = 5;
         }
+        if (type === "knockback") {
+          const costs = [30, 55, 90, 140, 200];
+          cost = costs[up.knockback || 0];
+          max = 5;
+        }
+        if (type === "slowField") {
+          const costs = [100, 200, 350, 550];
+          cost = costs[up.slowField || 0];
+          max = 4;
+        }
+        if (type === "lastStand") {
+          const costs = [60, 130, 250];
+          cost = costs[up.lastStand || 0];
+          max = 3;
+        }
+        if (type === "bountyTargets") {
+          const costs = [45, 100, 200];
+          cost = costs[up.bountyTargets || 0];
+          max = 3;
+        }
+        if (type === "shieldEcho") {
+          const costs = [150, 300, 500];
+          cost = costs[up.shieldEcho || 0];
+          max = 3;
+        }
+        if (type === "reactiveShields") {
+          const costs = [80, 150, 250, 400];
+          cost = costs[up.reactiveShields || 0];
+          max = 4;
+        }
+        if (type === "shieldRicochet") {
+          const costs = [200, 400, 700];
+          cost = costs[up.shieldRicochet || 0];
+          max = 3;
+        }
+        if (type === "orbitalMines") {
+          const costs = [100, 200, 350, 550];
+          cost = costs[up.orbitalMines || 0];
+          max = 4;
+        }
+        if (type === "chainLightning") {
+          const costs = [120, 220, 350, 500];
+          cost = costs[up.chainLightning || 0];
+          max = 4;
+        }
+        if (type === "revengeBlast") {
+          const costs = [75, 175, 300];
+          cost = costs[up.revengeBlast || 0];
+          max = 3;
+        }
+        if (type === "counterPulse") {
+          const costs = [60, 100, 160, 240, 350];
+          cost = costs[up.counterPulse || 0];
+          max = 5;
+        }
+        if (type === "fluxVacuum") {
+          const costs = [40, 90, 160];
+          cost = costs[up.fluxVacuum || 0];
+          max = 3;
+        }
+        if (type === "enemyRadar") {
+          cost = 150;
+          max = 1;
+        }
+        if (type === "greedMode") {
+          cost = 200;
+          max = 1;
+        }
+        if (type === "interest") {
+          const costs = [50, 100, 175, 275, 400];
+          cost = costs[up.interest || 0];
+          max = 5;
+        }
+        if (type === "innerShield") {
+          cost = 750;
+          max = 1;
+        }
+        if (type === "coreOverdrive") {
+          const costs = [300, 500, 800];
+          cost = costs[up.coreOverdrive || 0];
+          max = 3;
+        }
+        if (type === "timeFreeze") {
+          cost = 400;
+          max = 1;
+        }
+        if (type === "blackHole") {
+          cost = 600;
+          max = 1;
+        }
+        if (type === "shieldSpikes") {
+          const costs = [100, 200, 350];
+          cost = costs[up.shieldSpikes || 0];
+          max = 3;
+        }
+        if (type === "refractorBeam") {
+          const costs = [180, 320, 500];
+          cost = costs[up.refractorBeam || 0];
+          max = 3;
+        }
+        if (type === "empDynamo") {
+          const costs = [120, 220, 380];
+          cost = costs[up.empDynamo || 0];
+          max = 3;
+        }
+        if (type === "solarFlare") {
+          const costs = [150, 250, 400];
+          cost = costs[up.solarFlare || 0];
+          max = 3;
+        }
+        if (type === "suddenDeath") {
+          cost = 250;
+          max = 1;
+        }
+        if (type === "perfectSweep") {
+          const costs = [80, 150, 250];
+          cost = costs[up.perfectSweep || 0];
+          max = 3;
+        }
         up[type] = up[type] || 0;
         if (up[type] < max && saveData.flux >= cost) {
           saveData.flux -= cost;
@@ -6291,6 +7219,79 @@ default: return ``;
         }
       }
 
+      function triggerCoreDamage(dmg) {
+        if (saveData.suddenDeathActive) {
+          currentHealth = 0;
+          renderHealth();
+          endGame();
+          return;
+        }
+        
+        if ((saveData.upgrades.empDynamo || 0) === 3) {
+          addEMPCharge(empMax * 0.20);
+        }
+
+        if (!TEST_MODE) {
+          currentHealth -= dmg;
+        }
+        renderHealth();
+        
+        const rbLv = saveData.upgrades.revengeBlast || 0;
+        if (rbLv > 0) {
+          const radii = [0, 80, 120, 180];
+          const radius = radii[rbLv] || 80;
+          playSound("damage");
+          shakeAmount = 40;
+          
+          pulseEffects.push({
+            x: centerX,
+            y: centerY,
+            radius: 0,
+            maxRadius: radius,
+            active: true,
+            color: "rgba(255, 0, 85, 0.6)"
+          });
+          
+          enemies.forEach(enemy => {
+            if (!enemy.isFakeFlux && !enemy.isWhiteMinion && enemy.type !== "wardenTether") {
+              const ed = Math.hypot(enemy.x - centerX, enemy.y - centerY);
+              if (ed <= radius) {
+                enemy.hp = 0;
+                enemy.die();
+              }
+            }
+          });
+        }
+        
+        if (currentHealth <= 0 && gameActive) {
+          if (TEST_MODE) {
+            currentHealth = 1;
+            renderHealth();
+          } else {
+            endGame();
+          }
+        }
+      }
+
+      function triggerRefractorBeam(x, y) {
+        const rbLv = saveData.upgrades.refractorBeam || 0;
+        if (rbLv > 0) {
+          const chances = [0, 0.20, 0.40, 0.60];
+          if (Math.random() < chances[rbLv]) {
+            const angle = Math.atan2(y - centerY, x - centerX);
+            lasers.push({
+              x: x,
+              y: y,
+              vx: Math.cos(angle) * 8,
+              vy: Math.sin(angle) * 8,
+              angle: angle,
+              active: true
+            });
+            playSound("ping");
+          }
+        }
+      }
+
       function startGame(fullHeal = false) {
         currentRunFlux = 0;
         gameActive = true;
@@ -6301,6 +7302,34 @@ default: return ``;
         bosses = [];
         particles = [];
         floatingTexts = [];
+        ghostShields = [];
+        mines = [];
+        lightningEffects = [];
+        pulseEffects = [];
+        collectibleFlux = [];
+        lasers = [];
+        timeFreezeTimer = 0;
+        timeFreezeCooldown = 0;
+        blackHoleTimer = 0;
+        blackHoleCooldown = 0;
+        barricadesLostThisWave = 0;
+        nextEnemySpawnAngle = null;
+        coreOverdriveTimer = 0;
+        solarFlareTimer = 0;
+        blocksCount = 0;
+
+        const omLv = saveData.upgrades.orbitalMines || 0;
+        if (omLv > 0) {
+          for (let i = 0; i < omLv; i++) {
+            const angle = (i * 2 * Math.PI) / omLv;
+            mines.push({
+              angle: angle,
+              radius: 115,
+              active: true
+            });
+          }
+        }
+
         currentWaveTime = 0;
         hasTakenDamageThisWave = false;
         timeSinceLastAction = 0;
@@ -6416,7 +7445,25 @@ default: return ``;
       function onWaveClear() {
         gameActive = false;
         pauseBtn.classList.add("hidden");
+        // Perfect Sweep Upgrade
+        const sweepLv = saveData.upgrades.perfectSweep || 0;
+        if (sweepLv > 0 && !hasTakenDamageThisWave && barricadesLostThisWave === 0) {
+          const sweepRates = [0, 0.15, 0.30, 0.50];
+          const sweepBonus = Math.floor(currentRunFlux * (sweepRates[sweepLv] || 0));
+          currentRunFlux += sweepBonus;
+          floatingTexts.push(new FloatingText(centerX, centerY - 50, `Perfect Sweep: +${sweepBonus} F`, "#38bdf8"));
+        }
+
         saveData.flux += currentRunFlux;
+
+        // Interest Upgrade
+        const interestLv = saveData.upgrades.interest || 0;
+        if (interestLv > 0) {
+          const interestRates = [0, 0.02, 0.04, 0.06, 0.08, 0.10];
+          const interestBonus = Math.floor(saveData.flux * (interestRates[interestLv] || 0));
+          saveData.flux += interestBonus;
+          floatingTexts.push(new FloatingText(centerX, centerY - 80, `Interest: +${interestBonus} F`, "#22c55e"));
+        }
         if (!hasTakenDamageThisWave)
           saveData.maxPerfectWave = Math.max(
             saveData.maxPerfectWave || 0,
@@ -6506,13 +7553,13 @@ default: return ``;
       
       class Enemy {
         static types = ["normal", "stinger", "bouncer", "splitter", "phantom", "weaver", "juggernaut", "cloaker", "sapper", "warden", "pulsar", "kamikaze", "trojan", "mirror", "magnet", "shifter", "empleech", "phalanx", "glitch", "parasite", "doomsday"];
-        constructor(forceType = null, startX = null, startY = null, fragmentIndex = null) {
+        constructor(forceType = null, startX = null, startY = null, fragmentIndex = null, forceAngle = null) {
           this.trail = [];
           if (startX !== null && startY !== null) {
             this.x = startX;
             this.y = startY;
           } else {
-            const angle = Math.random() * Math.PI * 2;
+            const angle = forceAngle !== null ? forceAngle : Math.random() * Math.PI * 2;
             const dx = Math.cos(angle);
             const dy = Math.sin(angle);
             const distToEdge = Math.min((width/2) / (Math.abs(dx) || 0.001), (height/2) / (Math.abs(dy) || 0.001));
@@ -6618,40 +7665,233 @@ default: return ``;
           } else {
             this.color = "#ff0055"; this.speed = 3.0 * difficulty; this.size = 12; this.hp = 1;
           }
+          this.colorVariant = Math.floor(Math.random() * 2);
+          this.isBounty = false;
+          const bountyTargetsLv = saveData.upgrades.bountyTargets || 0;
+          if (bountyTargetsLv > 0 && this.type !== "fakeflux" && this.type !== "fragment" && this.type !== "debris" && this.type !== "whiteMinion") {
+            const chance = bountyTargetsLv / (totalEnemiesToDestroy || 30);
+            if (Math.random() < chance) {
+              this.isBounty = true;
+            }
+          }
+          
+          let speedScale = 1;
+          if (saveData.greedModeActive) speedScale *= 1.25;
+          if (saveData.suddenDeathActive) speedScale *= 1.50;
+          if (this.speed) {
+            this.speed *= speedScale;
+          }
         }
 
         getPoints() {
-          if (this.isMirrored) return 7;
-          if (this.type === "stinger") return 2;
-          if (this.type === "bouncer") return 3;
-          if (this.type === "splitter") return 4;
-          if (this.type === "fragment") return 1;
-          if (this.type === "phantom") return 5;
-          if (this.type === "weaver") return 6;
-          if (this.type === "juggernaut") return 7;
-          if (this.type === "cloaker") return 8;
-          if (this.type === "sapper") return 9;
-          if (this.type === "warden") return 10;
-          if (this.type === "pulsar") return 11;
-          if (this.type === "kamikaze") return 12;
-          if (this.type === "trojan" || this.type === "fakeflux") return 13;
-          if (this.type === "mirror") return 14;
-          if (this.type === "magnet") return 15;
-          if (this.type === "shifter") return 16;
-          if (this.type === "empleech") return 17;
-          if (this.type === "phalanx") return 18;
-          if (this.type === "glitch") return 19;
-          if (this.type === "parasite") return 20;
-          if (this.type === "doomsday") return 21;
-          return 1;
+          let basePoints = 1;
+          if (this.isMirrored) basePoints = 7;
+          else if (this.type === "stinger") basePoints = 2;
+          else if (this.type === "bouncer") basePoints = 3;
+          else if (this.type === "splitter") basePoints = 4;
+          else if (this.type === "fragment") basePoints = 1;
+          else if (this.type === "phantom") basePoints = 5;
+          else if (this.type === "weaver") basePoints = 6;
+          else if (this.type === "juggernaut") basePoints = 7;
+          else if (this.type === "cloaker") basePoints = 8;
+          else if (this.type === "sapper") basePoints = 9;
+          else if (this.type === "warden") basePoints = 10;
+          else if (this.type === "pulsar") basePoints = 11;
+          else if (this.type === "kamikaze") basePoints = 12;
+          else if (this.type === "trojan" || this.type === "fakeflux") basePoints = 13;
+          else if (this.type === "mirror") basePoints = 14;
+          else if (this.type === "magnet") basePoints = 15;
+          else if (this.type === "shifter") basePoints = 16;
+          else if (this.type === "empleech") basePoints = 17;
+          else if (this.type === "phalanx") basePoints = 18;
+          else if (this.type === "glitch") basePoints = 19;
+          else if (this.type === "parasite") basePoints = 20;
+          else if (this.type === "doomsday") basePoints = 21;
+
+          if (this.isBounty) {
+            return basePoints * 10;
+          }
+          return basePoints;
         }
 
         update() {
-          this.trail.push({ x: this.x, y: this.y });
-          if (this.trail.length > 6) this.trail.shift();
+          if (this.state !== "rebounding") {
+            this.hasRicocheted = false;
+          }
+          if (this.originalSpeed === undefined) {
+            this.originalSpeed = this.speed;
+          }
           const dx = centerX - this.x;
           const dy = centerY - this.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
+
+          // Time Freeze logic
+          if (timeFreezeTimer > 0) {
+            // Check shield collision even when frozen in case shield rotates into the enemy
+            if (!this.isImmortal && !this.isPhased && this.type !== "fakeflux" && timeSinceLastAction < 17.5) {
+              const currentAngle = Math.atan2(this.y - centerY, this.x - centerX);
+              const normalizedEnemyAngle = ((currentAngle % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+              const arcWidth = 0.7 + (saveData.upgrades.width - 1) * 0.15;
+              const shieldCount = saveData.upgrades.multi;
+              if (dist < SHIELD_RADIUS + 15 && dist > SHIELD_RADIUS - 15) {
+                for (let i = 0; i < shieldCount; i++) {
+                  const offset = ((Math.PI * 2) / shieldCount) * i;
+                  const normalizedRotation = (((rotation + offset) % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+                  let angleDiff = Math.abs(normalizedEnemyAngle - normalizedRotation);
+                  if (angleDiff > Math.PI) angleDiff = Math.PI * 2 - angleDiff;
+                  
+                  if (angleDiff < arcWidth / 2) {
+                    const knockbackLv = saveData.upgrades.knockback || 0;
+                    const knockbackMult = 1 + knockbackLv * 0.20;
+                    const bonusP = knockbackLv * 3;
+
+                    if (this.type === "phalanx") {
+                      if (angleDiff < arcWidth * 0.3) {
+                        rotationDir *= -1;
+                        this.x -= (dx / dist) * 60 * knockbackMult;
+                        this.y -= (dy / dist) * 60 * knockbackMult;
+                        playSound("hit");
+                        createExplosion(this.x, this.y, "#ffffff", 5 + bonusP);
+                        return true;
+                      } else {
+                        playSound("ping");
+                        return this.die();
+                      }
+                    }
+
+                    playSound("hit");
+                    triggerRefractorBeam(this.x, this.y);
+                    if (saveData.upgrades.shieldEcho > 0) {
+                      const durations = [0, 0.3, 0.5, 0.8];
+                      ghostShields.push({
+                        angle: rotation + offset,
+                        arcWidth: arcWidth,
+                        timeLeft: durations[saveData.upgrades.shieldEcho] || 0.3,
+                        hits: 1
+                      });
+                    }
+
+                    const spikesDmg = (saveData.upgrades.shieldSpikes || 0);
+                    if (this.type === "juggernaut" && this.hp - spikesDmg > 1) {
+                      this.hp -= (1 + spikesDmg); this.state = "rebounding"; this.isImmortal = true; this.reboundTicks = 30;
+                      createExplosion(this.x, this.y, this.color, 12 + bonusP); shakeAmount = 15; return true;
+                    } else if (this.type === "bouncer" && this.hp > 1 && spikesDmg === 0) {
+                      this.hp = 1; this.state = "rebounding"; this.isImmortal = true; this.reboundTicks = 60;
+                      createExplosion(this.x, this.y, this.color, 12 + bonusP); shakeAmount = 6; return true;
+                    } else if (this.type === "warden" && this.hp - spikesDmg > 1) {
+                      this.hp -= (1 + spikesDmg); this.state = "rebounding"; this.isImmortal = true; this.reboundTicks = 60;
+                      createExplosion(this.x, this.y, this.color, 12 + bonusP); shakeAmount = 6; return true;
+                    } else if (this.type === "splitter") {
+                      this.state = "rebounding"; this.isImmortal = true; this.reboundTicks = 60;
+                      createExplosion(this.x, this.y, this.color, 12 + bonusP); shakeAmount = 6; return true;
+                    } else if (this.type === "doomsday") {
+                      if (this.spikes && this.activeSpikeIndex !== undefined) {
+                        this.spikes[this.activeSpikeIndex] = false;
+                        let nextIndex = this.activeSpikeIndex;
+                        for (let step = 1; step <= 9; step++) {
+                          let testIdx = (this.activeSpikeIndex + step) % 9;
+                          if (this.spikes[testIdx]) {
+                            nextIndex = testIdx;
+                            break;
+                          }
+                        }
+                        this.targetSpikeIndex = nextIndex;
+                      }
+                      this.hp -= (1 + spikesDmg);
+                      this.state = "rebounding"; this.isImmortal = true; this.reboundTicks = 30; this.bounceMult = (this.bounceMult || 1) + 0.25; this.speed += 0.25;
+                      createExplosion(this.x, this.y, this.color, 20 + bonusP); shakeAmount = 20; 
+                      if(this.hp <= 0) return this.die();
+                      return true;
+                    } else if (this.type === "trojan") {
+                      return this.die();
+                    } else {
+                      playSound("ping");
+                      return this.die();
+                    }
+                  }
+                }
+              }
+            }
+            return true;
+          }
+
+          // Shield Ricochet
+          if (this.state === "rebounding" && !this.hasRicocheted && (saveData.upgrades.shieldRicochet || 0) > 0) {
+            for (let other of enemies) {
+              if (other !== this && other.state !== "rebounding" && !other.isFakeFlux && !other.isWhiteMinion) {
+                const odist = Math.hypot(other.x - this.x, other.y - this.y);
+                if (odist < 30) {
+                  other.hp -= saveData.upgrades.shieldRicochet;
+                  this.hasRicocheted = true;
+                  playSound("hit");
+                  createExplosion(other.x, other.y, "#00ffff", 8);
+                  if (other.hp <= 0) {
+                    other.die();
+                  }
+                  break;
+                }
+              }
+            }
+          }
+
+          // Ghost Shield Collision (Shield Echo)
+          if (!this.isImmortal && !this.isPhased && this.type !== "fakeflux" && ghostShields.length > 0) {
+            if (dist < SHIELD_RADIUS + 15 && dist > SHIELD_RADIUS - 15) {
+              const currentAngle = Math.atan2(this.y - centerY, this.x - centerX);
+              const normalizedEnemyAngle = ((currentAngle % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+              for (let ghost of ghostShields) {
+                if (ghost.hits > 0 && ghost.timeLeft > 0) {
+                  const normalizedGhostAngle = ((ghost.angle % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+                  let angleDiff = Math.abs(normalizedEnemyAngle - normalizedGhostAngle);
+                  if (angleDiff > Math.PI) angleDiff = Math.PI * 2 - angleDiff;
+
+                  if (angleDiff < ghost.arcWidth / 2) {
+                    ghost.hits--;
+                    playSound("hit");
+                    triggerRefractorBeam(this.x, this.y);
+                    createExplosion(this.x, this.y, "rgba(0, 255, 255, 0.5)", 8);
+                    
+                    const spikesDmg = (saveData.upgrades.shieldSpikes || 0);
+                    if (this.type === "juggernaut" && this.hp - spikesDmg > 1) {
+                      this.hp -= (1 + spikesDmg); this.state = "rebounding"; this.isImmortal = true; this.reboundTicks = 30;
+                      shakeAmount = 15; return true;
+                    } else if (this.type === "bouncer" && this.hp > 1 && spikesDmg === 0) {
+                      this.hp = 1; this.state = "rebounding"; this.isImmortal = true; this.reboundTicks = 60;
+                      shakeAmount = 6; return true;
+                    } else if (this.type === "warden" && this.hp - spikesDmg > 1) {
+                      this.hp -= (1 + spikesDmg); this.state = "rebounding"; this.isImmortal = true; this.reboundTicks = 60;
+                      shakeAmount = 6; return true;
+                    } else if (this.type === "splitter") {
+                      this.state = "rebounding"; this.isImmortal = true; this.reboundTicks = 60;
+                      shakeAmount = 6; return true;
+                    } else if (this.type === "doomsday") {
+                      this.hp -= (1 + spikesDmg);
+                      this.state = "rebounding"; this.isImmortal = true; this.reboundTicks = 30;
+                      if(this.hp <= 0) return this.die();
+                      return true;
+                    } else if (this.type === "trojan") {
+                      return this.die();
+                    } else {
+                      return this.die();
+                    }
+                  }
+                }
+              }
+            }
+          }
+
+          // Slow Field Speed modifier
+          const slowFieldLv = saveData.upgrades.slowField || 0;
+          const currentDist = dist;
+          if (slowFieldLv > 0 && currentDist < 200 && this.state !== "rebounding") {
+            this.speed = this.originalSpeed * (1 - slowFieldLv * 0.10);
+          } else {
+            this.speed = this.originalSpeed;
+          }
+          const knockbackMult = 1 + (saveData.upgrades.knockback || 0) * 0.20;
+
+          this.trail.push({ x: this.x, y: this.y });
+          if (this.trail.length > 6) this.trail.shift();
 
           if (this.type === "phantom") {
             this.phaseTimer++;
@@ -6744,8 +7984,8 @@ default: return ``;
           } else if (this.type === "splitter" && this.state === "rebounding") {
             const maxScreenDist = Math.min(width, height) * 0.48;
             if (dist < maxScreenDist) {
-              this.x -= (dx / dist) * this.speed * 2.5;
-              this.y -= (dy / dist) * this.speed * 2.5;
+              this.x -= (dx / dist) * this.speed * 2.5 * knockbackMult;
+              this.y -= (dy / dist) * this.speed * 2.5 * knockbackMult;
             }
             this.reboundTicks--;
             if (this.reboundTicks <= 0) {
@@ -6763,15 +8003,19 @@ default: return ``;
               currentRunFlux += points;
               saveData.lifetimeFlux += points;
               scoreEl.innerText = currentRunFlux;
-              floatingTexts.push(new FloatingText(this.x, this.y, `+${points} F`, "#fbbf24"));
+              if (this.isBounty) {
+                floatingTexts.push(new FloatingText(this.x, this.y, `+${points} F ★`, "#ffd700"));
+              } else {
+                floatingTexts.push(new FloatingText(this.x, this.y, `+${points} F`, "#fbbf24"));
+              }
               return false;
             }
             return true;
           } else if ((this.type === "bouncer" || this.type === "warden") && this.state === "rebounding") {
             const maxScreenDist = Math.min(width, height) * 0.48;
             if (dist < maxScreenDist) {
-              this.x -= (dx / dist) * this.speed * 2.5;
-              this.y -= (dy / dist) * this.speed * 2.5;
+              this.x -= (dx / dist) * this.speed * 2.5 * knockbackMult;
+              this.y -= (dy / dist) * this.speed * 2.5 * knockbackMult;
             }
             this.reboundTicks--;
             if (this.reboundTicks <= 0) {
@@ -6782,8 +8026,8 @@ default: return ``;
           } else if (this.type === "juggernaut" && this.state === "rebounding") {
             const maxScreenDist = Math.min(width, height) * 0.48;
             if (dist < maxScreenDist) {
-              this.x -= (dx / dist) * this.speed * 2.0;
-              this.y -= (dy / dist) * this.speed * 2.0;
+              this.x -= (dx / dist) * this.speed * 2.0 * knockbackMult;
+              this.y -= (dy / dist) * this.speed * 2.0 * knockbackMult;
             }
             this.reboundTicks--;
             if (this.reboundTicks <= 0) {
@@ -6794,8 +8038,8 @@ default: return ``;
           } else if (this.type === "doomsday" && this.state === "rebounding") {
             const maxScreenDist = Math.min(width, height) * 0.48;
             if (dist < maxScreenDist) {
-              this.x -= (dx / dist) * this.speed * 4.0 * this.bounceMult;
-              this.y -= (dy / dist) * this.speed * 4.0 * this.bounceMult;
+              this.x -= (dx / dist) * this.speed * 4.0 * this.bounceMult * knockbackMult;
+              this.y -= (dy / dist) * this.speed * 4.0 * this.bounceMult * knockbackMult;
             }
             this.reboundTicks--;
             if (this.reboundTicks <= 0) {
@@ -6823,6 +8067,7 @@ default: return ``;
                   target.b.active = false;
                   target.b.sapperLocked = 3; // Lock for 3 waves
                   currentActiveBarricades--;
+                  barricadesLostThisWave++;
                   activeBarricadeCountEl.innerText = currentActiveBarricades;
                   createExplosion(this.x, this.y, "#006400", 20);
                   enemiesToAdd.push(new Enemy("stinger", this.x, this.y));
@@ -6933,6 +8178,7 @@ default: return ``;
                   playSound("hit");
                   b.active = false;
                   currentActiveBarricades--;
+                  barricadesLostThisWave++;
                   activeBarricadeCountEl.innerText = currentActiveBarricades;
                   shakeAmount = 12;
                   
@@ -6958,6 +8204,7 @@ default: return ``;
                   playSound("hit");
                   b.active = false;
                   currentActiveBarricades--;
+                  barricadesLostThisWave++;
                   activeBarricadeCountEl.innerText = currentActiveBarricades;
                   shakeAmount = 12;
                   createExplosion(this.x, this.y, "#fff", 18);
@@ -6983,7 +8230,7 @@ default: return ``;
           }
 
           // Shield Collision
-          if (!this.isImmortal && !this.isPhased && this.type !== "fakeflux") {
+          if (!this.isImmortal && !this.isPhased && this.type !== "fakeflux" && timeSinceLastAction < 17.5) {
             const currentAngle = Math.atan2(this.y - centerY, this.x - centerX);
             const normalizedEnemyAngle = ((currentAngle % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
             const arcWidth = 0.7 + (saveData.upgrades.width - 1) * 0.15;
@@ -6996,13 +8243,17 @@ default: return ``;
                 if (angleDiff > Math.PI) angleDiff = Math.PI * 2 - angleDiff;
                 
                 if (angleDiff < arcWidth / 2) {
+                  const knockbackLv = saveData.upgrades.knockback || 0;
+                  const knockbackMult = 1 + knockbackLv * 0.20;
+                  const bonusP = knockbackLv * 3;
+
                   if (this.type === "phalanx") {
                     if (angleDiff < arcWidth * 0.3) {
                       rotationDir *= -1;
-                      this.x -= (dx / dist) * 60;
-                      this.y -= (dy / dist) * 60;
+                      this.x -= (dx / dist) * 60 * knockbackMult;
+                      this.y -= (dy / dist) * 60 * knockbackMult;
                       playSound("hit");
-                      createExplosion(this.x, this.y, "#ffffff", 5);
+                      createExplosion(this.x, this.y, "#ffffff", 5 + bonusP);
                       return true; // blocked!
                     } else {
                       playSound("ping");
@@ -7011,18 +8262,58 @@ default: return ``;
                   }
 
                   playSound("hit");
-                  if (this.type === "juggernaut" && this.hp > 1) {
-                    this.hp--; this.state = "rebounding"; this.isImmortal = true; this.reboundTicks = 30;
-                    createExplosion(this.x, this.y, this.color, 12); shakeAmount = 15; return true;
-                  } else if (this.type === "bouncer" && this.hp > 1) {
+                  triggerRefractorBeam(this.x, this.y);
+                  
+                  if (saveData.upgrades.shieldEcho > 0) {
+                    const durations = [0, 0.3, 0.5, 0.8];
+                    ghostShields.push({
+                      angle: rotation + offset,
+                      arcWidth: arcWidth,
+                      timeLeft: durations[saveData.upgrades.shieldEcho] || 0.3,
+                      hits: 1
+                    });
+                  }
+
+                  if ((saveData.upgrades.counterPulse || 0) > 0) {
+                    blocksCount++;
+                    const threshold = [0, 8, 7, 6, 5, 4][saveData.upgrades.counterPulse] || 8;
+                    if (blocksCount >= threshold) {
+                      blocksCount = 0;
+                      // Trigger Counter Pulse shockwave
+                      playSound("hit");
+                      pulseEffects.push({
+                        x: centerX,
+                        y: centerY,
+                        radius: 0,
+                        maxRadius: 80,
+                        active: true
+                      });
+                      enemies.forEach(enemy => {
+                        if (!enemy.isFakeFlux && !enemy.isWhiteMinion && enemy.type !== "wardenTether") {
+                          const ed = Math.hypot(enemy.x - centerX, enemy.y - centerY);
+                          if (ed <= 80) {
+                            enemy.hp = 0;
+                            enemy.die();
+                          }
+                        }
+                      });
+                    }
+                  }
+
+                  const spikesDmg = (saveData.upgrades.shieldSpikes || 0);
+
+                  if (this.type === "juggernaut" && this.hp - spikesDmg > 1) {
+                    this.hp -= (1 + spikesDmg); this.state = "rebounding"; this.isImmortal = true; this.reboundTicks = 30;
+                    createExplosion(this.x, this.y, this.color, 12 + bonusP); shakeAmount = 15; return true;
+                  } else if (this.type === "bouncer" && this.hp > 1 && spikesDmg === 0) {
                     this.hp = 1; this.state = "rebounding"; this.isImmortal = true; this.reboundTicks = 60;
-                    createExplosion(this.x, this.y, this.color, 12); shakeAmount = 6; return true;
-                  } else if (this.type === "warden" && this.hp > 1) {
-                    this.hp--; this.state = "rebounding"; this.isImmortal = true; this.reboundTicks = 60;
-                    createExplosion(this.x, this.y, this.color, 12); shakeAmount = 6; return true;
+                    createExplosion(this.x, this.y, this.color, 12 + bonusP); shakeAmount = 6; return true;
+                  } else if (this.type === "warden" && this.hp - spikesDmg > 1) {
+                    this.hp -= (1 + spikesDmg); this.state = "rebounding"; this.isImmortal = true; this.reboundTicks = 60;
+                    createExplosion(this.x, this.y, this.color, 12 + bonusP); shakeAmount = 6; return true;
                   } else if (this.type === "splitter") {
                     this.state = "rebounding"; this.isImmortal = true; this.reboundTicks = 60;
-                    createExplosion(this.x, this.y, this.color, 12); shakeAmount = 6; return true;
+                    createExplosion(this.x, this.y, this.color, 12 + bonusP); shakeAmount = 6; return true;
                   } else if (this.type === "doomsday") {
                     if (this.spikes && this.activeSpikeIndex !== undefined) {
                       this.spikes[this.activeSpikeIndex] = false;
@@ -7037,9 +8328,9 @@ default: return ``;
                       }
                       this.targetSpikeIndex = nextIndex;
                     }
-                    this.hp--;
+                    this.hp -= (1 + spikesDmg);
                     this.state = "rebounding"; this.isImmortal = true; this.reboundTicks = 30; this.bounceMult = (this.bounceMult || 1) + 0.25; this.speed += 0.25;
-                    createExplosion(this.x, this.y, this.color, 20); shakeAmount = 20; 
+                    createExplosion(this.x, this.y, this.color, 20 + bonusP); shakeAmount = 20; 
                     if(this.hp <= 0) return this.die();
                     return true;
                   } else if (this.type === "trojan") {
@@ -7054,7 +8345,7 @@ default: return ``;
           }
 
           // Fake Flux Collision with Shield
-          if (this.type === "fakeflux" && dist < SHIELD_RADIUS + 15 && dist > SHIELD_RADIUS - 15) {
+          if (this.type === "fakeflux" && timeSinceLastAction < 17.5 && dist < SHIELD_RADIUS + 15 && dist > SHIELD_RADIUS - 15) {
              const currentAngle = Math.atan2(this.y - centerY, this.x - centerX);
              const normalizedEnemyAngle = ((currentAngle % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
              const arcWidth = 0.7 + (saveData.upgrades.width - 1) * 0.15;
@@ -7073,6 +8364,45 @@ default: return ``;
                    return false;
                 }
              }
+          }          // Inner Shield Collision
+          if (!this.isImmortal && !this.isPhased && this.type !== "fakeflux" && saveData.upgrades.innerShield === 1) {
+            if (dist < 55 && dist > 25) {
+              const currentAngle = Math.atan2(this.y - centerY, this.x - centerX);
+              const normalizedEnemyAngle = ((currentAngle % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+              const innerRotation = ((-rotation * 0.5) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2);
+              const innerArcWidth = (0.7 + (saveData.upgrades.width - 1) * 0.15) / 2;
+              let angleDiff = Math.abs(normalizedEnemyAngle - innerRotation);
+              if (angleDiff > Math.PI) angleDiff = Math.PI * 2 - angleDiff;
+
+              if (angleDiff < innerArcWidth / 2) {
+                // Blocked by Inner Shield!
+                playSound("hit");
+                triggerRefractorBeam(this.x, this.y);
+                createExplosion(this.x, this.y, "#a855f7", 8); // purple sparks
+                
+                const spikesDmg = (saveData.upgrades.shieldSpikes || 0);
+                if (this.type === "juggernaut" && this.hp - spikesDmg > 1) {
+                  this.hp -= (1 + spikesDmg); this.state = "rebounding"; this.isImmortal = true; this.reboundTicks = 30;
+                  return true;
+                } else if ((this.type === "bouncer" || this.type === "warden") && this.hp > 1 && spikesDmg === 0) {
+                  this.hp = 1; this.state = "rebounding"; this.isImmortal = true; this.reboundTicks = 60;
+                  return true;
+                } else if (this.type === "warden" && this.hp - spikesDmg > 1) {
+                  this.hp -= (1 + spikesDmg); this.state = "rebounding"; this.isImmortal = true; this.reboundTicks = 60;
+                  return true;
+                } else if (this.type === "splitter") {
+                  this.state = "rebounding"; this.isImmortal = true; this.reboundTicks = 60;
+                  return true;
+                } else if (this.type === "doomsday") {
+                  this.hp -= (1 + spikesDmg);
+                  this.state = "rebounding"; this.isImmortal = true; this.reboundTicks = 30;
+                  if (this.hp <= 0) return this.die();
+                  return true;
+                } else {
+                  return this.die();
+                }
+              }
+            }
           }
 
           // Core Collision
@@ -7099,13 +8429,7 @@ default: return ``;
               currentRunFlux = Math.max(0, currentRunFlux - loss);
               scoreEl.innerText = currentRunFlux;
               floatingTexts.push(new FloatingText(centerX, centerY - 30, `-${loss} F`, "#ff3366"));
-              let dmg = 1;
-              if (!TEST_MODE) currentHealth -= dmg;
-              renderHealth();
-              if (currentHealth <= 0 && gameActive) {
-                if (TEST_MODE) { currentHealth = 1; renderHealth(); }
-                else { endGame(); }
-              }
+              triggerCoreDamage(1);
               return false;
             } else if (this.type === "fakeflux") {
               return false;
@@ -7118,12 +8442,7 @@ default: return ``;
             }
             
             floatingTexts.push(new FloatingText(centerX, centerY - 30, `-${dmg}`, "#ff0055"));
-            if (!TEST_MODE) currentHealth -= dmg;
-            renderHealth();
-            if (currentHealth <= 0 && gameActive) {
-              if (TEST_MODE) { currentHealth = 1; renderHealth(); }
-              else { endGame(); }
-            }
+            triggerCoreDamage(dmg);
             return false;
           }
           return true;
@@ -7131,10 +8450,77 @@ default: return ``;
 
         die(points = null) {
           let pts = points !== null ? points : this.getPoints();
-          currentRunFlux += pts;
-          saveData.lifetimeFlux += pts;
+          if (points !== null && this.isBounty) {
+            pts *= 10;
+          }
+
+          const multiplier = saveData.suddenDeathActive ? 3 : (saveData.greedModeActive ? 2 : 1);
+          let finalPts = pts;
+
+          if (this.isBounty) {
+            const basePts = pts / 10;
+            finalPts = basePts * multiplier; // 1x points directly
+            const shardVal = basePts;
+            for (let i = 0; i < 9; i++) {
+              const angle = Math.random() * Math.PI * 2;
+              const speed = 1.5 + Math.random() * 2.5;
+              collectibleFlux.push({
+                x: this.x,
+                y: this.y,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed,
+                val: shardVal,
+                life: 600
+              });
+            }
+          } else {
+            finalPts = pts * multiplier;
+          }
+
+          currentRunFlux += finalPts;
+          saveData.lifetimeFlux += finalPts;
           scoreEl.innerText = currentRunFlux;
-          floatingTexts.push(new FloatingText(this.x, this.y, `+${pts} F`, "#fbbf24"));
+
+          if (this.isBounty) {
+            floatingTexts.push(new FloatingText(this.x, this.y, `+${finalPts} F ★`, "#ffd700"));
+          } else {
+            floatingTexts.push(new FloatingText(this.x, this.y, `+${finalPts} F`, "#fbbf24"));
+          }
+
+          // Chain Lightning Upgrade
+          const clLv = saveData.upgrades.chainLightning || 0;
+          if (clLv > 0) {
+            const chances = [0, 0.15, 0.25, 0.35, 0.50];
+            if (Math.random() < chances[clLv]) {
+              let target = null;
+              let minDist = 100;
+              for (let other of enemies) {
+                if (other !== this && !other.isFakeFlux && !other.isWhiteMinion && other.state !== "rebounding") {
+                  const d = Math.hypot(other.x - this.x, other.y - this.y);
+                  if (d < minDist) {
+                    minDist = d;
+                    target = other;
+                  }
+                }
+              }
+              if (target) {
+                target.hp -= 1;
+                playSound("hit");
+                createExplosion(target.x, target.y, "#00ffff", 5);
+                lightningEffects.push({
+                  x1: this.x,
+                  y1: this.y,
+                  x2: target.x,
+                  y2: target.y,
+                  duration: 0.15
+                });
+                if (target.hp <= 0) {
+                  target.die();
+                }
+              }
+            }
+          }
+
           createExplosion(this.x, this.y, this.color, 15);
           shakeAmount = 5;
           if (!isBossWave) {
@@ -7170,6 +8556,27 @@ default: return ``;
             auraColor = SKINS.enemies[saveData.equippedSkins.enemies].aura;
           }
 
+          // Apply actual enemy color from skins (skip special types)
+          if (!this.isWhiteMinion && this.type !== "fakeflux") {
+            if (
+              saveData.equippedSkins &&
+              saveData.equippedSkins.worldcup &&
+              saveData.equippedSkins.worldcup !== "none" &&
+              SKINS.worldcup[saveData.equippedSkins.worldcup]
+            ) {
+              const wcSkin = SKINS.worldcup[saveData.equippedSkins.worldcup];
+              this.color = this.colorVariant === 0 ? wcSkin.core : wcSkin.shield;
+            } else if (
+              saveData.equippedSkins &&
+              saveData.equippedSkins.enemies &&
+              saveData.equippedSkins.enemies !== "default" &&
+              SKINS.enemies[saveData.equippedSkins.enemies] &&
+              SKINS.enemies[saveData.equippedSkins.enemies].color !== "none"
+            ) {
+              this.color = SKINS.enemies[saveData.equippedSkins.enemies].color;
+            }
+          }
+
           if (this.type !== "normal" && this.type !== "splitter" && this.type !== "juggernaut" && this.type !== "glitch") {
             this.trail.forEach((pos, index) => {
               ctx.globalAlpha = (index / this.trail.length) * 0.4;
@@ -7184,8 +8591,8 @@ default: return ``;
           ctx.fillStyle = this.color;
           ctx.strokeStyle = this.color;
           ctx.lineWidth = 2;
-          ctx.shadowBlur = 15;
-          ctx.shadowColor = this.color;
+          ctx.shadowBlur = this.isBounty ? 25 : 15;
+          ctx.shadowColor = this.isBounty ? "#ffd700" : this.color;
 
           if (this.type === "kamikaze") {
             if (Math.floor(Date.now() / 250) % 2 === 0) {
@@ -7382,6 +8789,23 @@ default: return ``;
           }
 
           ctx.restore();
+
+          if (this.isBounty) {
+            ctx.save();
+            ctx.fillStyle = "#ffd700";
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = "#ffd700";
+            ctx.beginPath();
+            const starY = this.y - this.size - 10;
+            const starSize = 5;
+            ctx.moveTo(this.x, starY - starSize);
+            ctx.lineTo(this.x + starSize, starY);
+            ctx.lineTo(this.x, starY + starSize);
+            ctx.lineTo(this.x - starSize, starY);
+            ctx.closePath();
+            ctx.fill();
+            ctx.restore();
+          }
           
           if (this.type === "warden" && this.wardenTethers) {
             const t = this.bulletProgress || 0;
@@ -7419,6 +8843,7 @@ default: return ``;
         }
         
         checkShieldCollision(dist, hitRange = 15) {
+          if (timeSinceLastAction >= 17.5) return false;
           if (this.invulnTimer === undefined) this.invulnTimer = 0;
           if (this.invulnTimer > 0) {
             this.invulnTimer -= timeScale;
@@ -7696,7 +9121,7 @@ class TheBoss extends ColossalBoss {
              }
              
              // Stun player if hits shield during bounce
-             if (this.bounceCooldown <= 0 && dist < SHIELD_RADIUS + this.size && dist > SHIELD_RADIUS - this.size - 10) {
+             if (this.bounceCooldown <= 0 && timeSinceLastAction < 17.5 && dist < SHIELD_RADIUS + this.size && dist > SHIELD_RADIUS - this.size - 10) {
                 rotationDir *= -1; // stun/reverse rotation
                 const pushAngle = Math.atan2(this.y - centerY, this.x - centerX);
                 this.x = centerX + Math.cos(pushAngle) * (SHIELD_RADIUS + this.size + 15);
@@ -7725,7 +9150,7 @@ class TheBoss extends ColossalBoss {
                    this.y += dyNorm * (dashSpeed / steps);
                    let sdx = centerX - this.x; let sdy = centerY - this.y;
                    let sdist = Math.hypot(sdx, sdy);
-                   if (sdist < SHIELD_RADIUS + this.size + 10 && sdist > SHIELD_RADIUS - this.size - 10) {
+                   if (timeSinceLastAction < 17.5 && sdist < SHIELD_RADIUS + this.size + 10 && sdist > SHIELD_RADIUS - this.size - 10) {
                       break;
                    }
                 }
@@ -8028,21 +9453,19 @@ class TheBoss extends ColossalBoss {
           
           if (dist < 20 + this.size) {
             // Decoy reaching core = damage but not game over
-            currentHealth -= 2;
+            triggerCoreDamage(2);
             createExplosion(this.x, this.y, this.color, 15);
-            if (currentHealth <= 0) { endGame(); return false; }
             return true;
           }
           
           // Shield collision - hitting a decoy = SEVERE damage
           if (this.checkShieldCollision(dist, 10)) {
             // WRONG! Severe core damage
-            currentHealth -= 3;
+            triggerCoreDamage(3);
             shakeAmount = 20;
             createExplosion(this.x, this.y, "#ff0000", 30);
             playSound(100, "sawtooth", 0.15, 0.3);
             floatingTexts.push(new FloatingText(this.x, this.y - 30, "WRONG!", "#ff0000"));
-            if (currentHealth <= 0) { endGame(); }
             return true; // decoy shatters
           }
           return false;
@@ -8248,7 +9671,7 @@ class TheBoss extends ColossalBoss {
            if (this.hp <= 0) return false;
            let dx = centerX - this.x; let dy = centerY - this.y;
            let dist = Math.hypot(dx, dy);
-           if (dist < SHIELD_RADIUS + this.size && dist > SHIELD_RADIUS - 10) {
+           if (timeSinceLastAction < 17.5 && dist < SHIELD_RADIUS + this.size && dist > SHIELD_RADIUS - 10) {
               let hitDiff = Math.abs(Math.atan2(dy, dx) - (rotation % (Math.PI*2)));
               if (hitDiff > Math.PI) hitDiff = Math.PI*2 - hitDiff;
               if (hitDiff < ((Math.PI * 2) / saveData.upgrades.multi)/2) {
@@ -8321,7 +9744,8 @@ class TheBoss extends ColossalBoss {
           ctx.save(); ctx.translate(this.x, this.y);
           ctx.shadowBlur = 20; ctx.shadowColor = this.color;
           ctx.fillStyle = "#000"; ctx.beginPath(); ctx.arc(0, 0, this.size, 0, Math.PI*2); ctx.fill();
-          ctx.strokeStyle = this.color; ctx.lineWidth = 3; ctx.stroke();
+          ctx.strokeStyle = this.color; ctx.lineWidth = 3;
+          ctx.stroke();
           
           // accretion disk
           ctx.rotate(Date.now() / 200);
@@ -8355,7 +9779,7 @@ class TheBoss extends ColossalBoss {
              let dx = centerX - this.x; let dy = centerY - this.y;
              let dist = Math.hypot(dx, dy);
              
-             if (dist < SHIELD_RADIUS + this.size && dist > SHIELD_RADIUS - 10) {
+             if (timeSinceLastAction < 17.5 && dist < SHIELD_RADIUS + this.size && dist > SHIELD_RADIUS - 10) {
                 let currentAng = Math.atan2(dy, dx);
                 let hitDiff = Math.abs(currentAng - (rotation % (Math.PI*2)));
                 if (hitDiff > Math.PI) hitDiff = Math.PI*2 - hitDiff;
@@ -8461,7 +9885,7 @@ class TheBoss extends ColossalBoss {
                    this.y += dyNorm * (dashSpeed / steps);
                    let sdx = centerX - this.x; let sdy = centerY - this.y;
                    let sdist = Math.hypot(sdx, sdy);
-                   if (sdist < SHIELD_RADIUS + this.size + 15 && sdist > SHIELD_RADIUS - this.size - 15) {
+                   if (timeSinceLastAction < 17.5 && sdist < SHIELD_RADIUS + this.size + 15 && sdist > SHIELD_RADIUS - this.size - 15) {
                       break;
                    }
                 }
@@ -9497,7 +10921,11 @@ class TheBoss extends ColossalBoss {
         });
       }
       function drawShields() {
-        const arcWidth = 0.7 + (saveData.upgrades.width - 1) * 0.15;
+        const lastStandLv = saveData.upgrades.lastStand || 0;
+        let arcWidth = 0.7 + (saveData.upgrades.width - 1) * 0.15;
+        if (lastStandLv > 0 && currentHealth === 1) {
+          arcWidth += 0.15 * lastStandLv;
+        }
         const shieldCount = saveData.upgrades.multi;
         for (let i = 0; i < shieldCount; i++) {
           let currentShieldTab =
@@ -9527,16 +10955,26 @@ class TheBoss extends ColossalBoss {
             if (SKINS.shield[skinId]) skinColor = SKINS.shield[skinId].color;
           }
 
+          let finalSkinColor = skinColor;
+          let finalShadowColor = skinColor;
+          let finalShadowBlur = 15;
+          if (lastStandLv === 3 && currentHealth === 1) {
+            const glowPulse = 15 + Math.sin(Date.now() * 0.015) * 8;
+            finalSkinColor = "#ff0033";
+            finalShadowColor = "#ff0033";
+            finalShadowBlur = glowPulse;
+          }
+
           ctx.save();
           ctx.globalAlpha = shieldAlpha;
           ctx.translate(centerX, centerY);
           const offset = ((Math.PI * 2) / shieldCount) * i;
           ctx.rotate(rotation + offset);
-          ctx.strokeStyle = skinColor;
+          ctx.strokeStyle = finalSkinColor;
           ctx.lineWidth = SHIELD_THICKNESS;
           ctx.lineCap = "round";
-          ctx.shadowBlur = 15;
-          ctx.shadowColor = skinColor;
+          ctx.shadowBlur = finalShadowBlur;
+          ctx.shadowColor = finalShadowColor;
           ctx.beginPath();
 
           if (skinId === "worm") {
@@ -9555,6 +10993,44 @@ class TheBoss extends ColossalBoss {
             ctx.arc(0, 0, SHIELD_RADIUS, -arcWidth / 2, arcWidth / 2);
           }
 
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        // Draw Ghost Shields (Shield Echo)
+        ghostShields.forEach(ghost => {
+          if (ghost.timeLeft > 0 && ghost.hits > 0) {
+            ctx.save();
+            ctx.globalAlpha = (ghost.timeLeft / 0.8) * 0.4;
+            ctx.translate(centerX, centerY);
+            ctx.rotate(ghost.angle);
+            ctx.strokeStyle = "rgba(0, 255, 255, 0.8)";
+            ctx.lineWidth = SHIELD_THICKNESS;
+            ctx.lineCap = "round";
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = "#00ffff";
+            ctx.beginPath();
+            ctx.arc(0, 0, SHIELD_RADIUS, -ghost.arcWidth / 2, ghost.arcWidth / 2);
+            ctx.stroke();
+            ctx.restore();
+          }
+        });
+
+        // Draw Inner Shield
+        if (saveData.upgrades.innerShield === 1) {
+          ctx.save();
+          ctx.globalAlpha = 0.85;
+          ctx.translate(centerX, centerY);
+          const innerRotation = -rotation * 0.5;
+          ctx.rotate(innerRotation);
+          ctx.strokeStyle = "#a855f7";
+          ctx.lineWidth = SHIELD_THICKNESS * 0.8;
+          ctx.lineCap = "round";
+          ctx.shadowBlur = 15;
+          ctx.shadowColor = "#a855f7";
+          ctx.beginPath();
+          const innerArcWidth = (0.7 + (saveData.upgrades.width - 1) * 0.15) / 2;
+          ctx.arc(0, 0, 40, -innerArcWidth / 2, innerArcWidth / 2);
           ctx.stroke();
           ctx.restore();
         }
@@ -9600,7 +11076,7 @@ class TheBoss extends ColossalBoss {
 
         if (gameActive && !isPaused) {
           timeSinceLastAction += dt / 1000;
-          if (timeSinceLastAction >= 13) {
+          if (timeSinceLastAction >= 17.5) {
             shieldAlpha = Math.max(0.25, shieldAlpha - (dt / 1000) * 0.25);
           } else {
             shieldAlpha = Math.min(1.0, shieldAlpha + (dt / 1000) * 4.0);
@@ -9608,7 +11084,11 @@ class TheBoss extends ColossalBoss {
           enemiesToAdd = [];
           currentWaveTime += dt / 1000;
           const baseRotate = 0.04;
-          const speedMult = 1 + (saveData.upgrades.speed - 1) * 0.25;
+          let speedMult = 1 + (saveData.upgrades.speed - 1) * 0.25;
+          const lastStandLv = saveData.upgrades.lastStand || 0;
+          if (lastStandLv > 0 && currentHealth === 1) {
+            speedMult *= (1 + lastStandLv * 0.15);
+          }
           rotation +=
             baseRotate *
             speedMult *
@@ -9681,6 +11161,19 @@ class TheBoss extends ColossalBoss {
         if (!isPaused) {
           particles = particles.filter((p) => p.update());
           floatingTexts = floatingTexts.filter((ft) => ft.update());
+        }
+
+        // Draw Slow Field Ring
+        const slowFieldLv = saveData.upgrades.slowField || 0;
+        if (slowFieldLv > 0) {
+          ctx.save();
+          ctx.beginPath();
+          const pulse = Math.sin(Date.now() * 0.005) * 5;
+          ctx.arc(centerX, centerY, 200 + pulse, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(0, 255, 255, ${0.06 * slowFieldLv})`;
+          ctx.lineWidth = 2;
+          ctx.stroke();
+          ctx.restore();
         }
 
         drawCore();
