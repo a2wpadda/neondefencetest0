@@ -902,7 +902,7 @@
               </button>
             </div>
             <div id="unlock-instruction-minigames" class="unlock-hint">
-              Reach Wave 5 to unlock Mini-Games
+              Reach Wave 3 to unlock Mini-Games
             </div>
 
             <div class="grid grid-cols-2 gap-2 mt-2">
@@ -1934,7 +1934,7 @@
               NEON SCRATCHERS AND MORE
             </button>
             <div id="unlock-instruction-scratchers" class="unlock-hint mb-5">
-              Reach Wave 5 to access
+              Reach Wave 3 to access
             </div>
             <div class="upgrade-row">
               <div class="upgrade-info">
@@ -2210,6 +2210,23 @@
                   100 F
                 </button>
               </div>
+              <!-- 4. Vanguard Grid (Cost: 150 F) -->
+              <div class="upgrade-row" id="row-ticket-vanguardgrid" style="border-left-color: #06b6d4">
+                <div class="upgrade-info">
+                  <h3 style="color: #06b6d4">
+                    Vanguard Grid
+                    <span class="lvl-badge !bg-[#06b6d4] !text-black">Ticket</span>
+                  </h3>
+                  <p>3x3 grid matching. Reveal 3 identical symbols anywhere to win. Waves 1-10 pool.</p>
+                  <div id="lock-hint-vanguardgrid" class="unlock-hint mt-1 !text-left hidden">
+                    Reach Wave 8 to unlock
+                  </div>
+                </div>
+                <button id="btn-buy-vanguardgrid" class="btn btn-buy !bg-[#06b6d4] !text-black" onclick="buyScratcherTicket('vanguardgrid')">
+                  150 F
+                </button>
+              </div>
+
               <div
                 class="upgrade-row"
                 id="row-ticket-matcher"
@@ -2230,7 +2247,7 @@
                     id="lock-hint-matcher"
                     class="unlock-hint mt-1 !text-left hidden"
                   >
-                    Reach Wave 15 to unlock
+                    Reach Wave 10 to unlock
                   </div>
                 </div>
                 <button
@@ -2239,23 +2256,6 @@
                   onclick="buyScratcherTicket('matcher')"
                 >
                   250 F
-                </button>
-              </div>
-
-              <!-- 4. Vanguard Grid (Boss 10 Unlock, Cost: 150 F) -->
-              <div class="upgrade-row" id="row-ticket-vanguardgrid" style="border-left-color: #06b6d4">
-                <div class="upgrade-info">
-                  <h3 style="color: #06b6d4">
-                    Vanguard Grid
-                    <span class="lvl-badge !bg-[#06b6d4] !text-black">Ticket</span>
-                  </h3>
-                  <p>3x3 grid matching. Reveal 3 identical symbols anywhere to win. Waves 1-10 pool.</p>
-                  <div id="lock-hint-vanguardgrid" class="unlock-hint mt-1 !text-left hidden">
-                    Defeat Boss at Wave 20 to unlock
-                  </div>
-                </div>
-                <button id="btn-buy-vanguardgrid" class="btn btn-buy !bg-[#06b6d4] !text-black" onclick="buyScratcherTicket('vanguardgrid')">
-                  150 F
                 </button>
               </div>
 
@@ -3005,13 +3005,25 @@
 
           <!-- Gameplay area -->
           <div class="relative flex-grow w-full h-full overflow-hidden flex items-center justify-center">
-            <canvas id="minigameCanvas" class="absolute inset-0 w-full h-full"></canvas>
+            <canvas id="minigameCanvas" class="absolute inset-0 w-full h-full touch-none" style="touch-action: none;"></canvas>
             
             <!-- Custom UI / overlay messages for mini-games -->
             <div id="minigame-screen-msg" class="absolute inset-0 flex flex-col items-center justify-center bg-black/75 backdrop-blur-sm hidden z-50">
               <h1 id="minigame-screen-title" class="text-4xl sm:text-6xl font-black italic glow-text mb-2">READY?</h1>
               <p id="minigame-screen-desc" class="text-gray-400 text-sm font-bold tracking-widest uppercase mb-6"></p>
               <button id="minigame-screen-btn" class="btn text-sm px-6 py-2">START</button>
+            </div>
+
+            <!-- Custom In-Game Quit Confirmation Dialog -->
+            <div id="minigame-confirm-dialog" class="absolute inset-0 flex flex-col items-center justify-center bg-black/85 backdrop-blur-sm hidden z-[60]">
+              <div class="border-2 border-red-500 bg-[#0c0c14] p-6 rounded-xl max-w-xs text-center shadow-[0_0_30px_rgba(239,68,68,0.35)]">
+                <h2 class="text-red-500 text-lg font-black italic tracking-widest uppercase mb-2" style="text-shadow: 0 0 10px rgba(239,68,68,0.5)">CONFIRM QUIT</h2>
+                <p class="text-gray-300 text-xs font-bold uppercase tracking-wider leading-relaxed mb-6">Are you sure you want to quit? You will lose any pending rewards for this play session.</p>
+                <div class="flex justify-center gap-4">
+                  <button class="btn !bg-red-500 !text-black shadow-[0_0_15px_rgba(239,68,68,0.4)] px-4 py-1.5 text-xs font-black" onclick="confirmQuitMinigameAction(true)">YES, QUIT</button>
+                  <button class="btn !bg-gray-800 !text-white px-4 py-1.5 text-xs font-black" onclick="confirmQuitMinigameAction(false)">CANCEL</button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -3158,6 +3170,39 @@
       let app, auth, db;
       let isOfflineMode = false;
       let authReady = false;
+
+      const SCRATCHER_TICKET_CONFIGS = {
+        twowin: { cost: 10, wave: 3, name: "Two Win", color: "#a855f7" },
+        threefive: { cost: 50, wave: 5, name: "3 Out Of 5", color: "#fbbf24" },
+        vanguardgrid: { cost: 150, wave: 8, name: "Vanguard Grid", color: "#06b6d4" },
+        matcher: { cost: 250, wave: 10, name: "Matcher", color: "#ef4444" },
+        tree: { cost: 100, wave: 12, name: "Tree Out Of 3", color: "#10b981" },
+        radialsweep: { cost: 350, wave: 15, name: "Radial Sweep", color: "#a855f7" },
+        droppath: { cost: 500, wave: 18, name: "Drop Path", color: "#fbbf24" },
+        phantomphase: { cost: 600, wave: 20, name: "Phantom Phase", color: "#ec4899" },
+        forkchain: { cost: 750, wave: 22, name: "Fork Chain", color: "#3b82f6" },
+        triplelayer: { cost: 1000, wave: 25, name: "Triple Layer", color: "#10b981" },
+        tetherlock: { cost: 1250, wave: 28, name: "Tether Lock", color: "#6366f1" },
+        wardenvault: { cost: 1100, wave: 30, name: "Warden Vault", color: "#f43f5e" },
+        pulsescan: { cost: 1500, wave: 32, name: "Pulse Scan", color: "#06b6d4" },
+        hazardsweep: { cost: 1800, wave: 35, name: "Hazard Sweep", color: "#10b981" },
+        trojanmatrix: { cost: 2000, wave: 38, name: "Trojan Matrix", color: "#d946ef" },
+        shellgame: { cost: 2200, wave: 40, name: "Shell Game", color: "#f59e0b" },
+        mirrormatch: { cost: 2600, wave: 42, name: "Mirror Match", color: "#3b82f6" },
+        magneticfields: { cost: 3000, wave: 45, name: "Magnetic Fields", color: "#6366f1" },
+        gridshift: { cost: 3500, wave: 48, name: "Grid Shift", color: "#10b981" },
+        mirrorrefract: { cost: 3200, wave: 50, name: "Mirror Refract", color: "#a855f7" },
+        siphondrain: { cost: 4000, wave: 55, name: "Siphon Drain", color: "#fbbf24" },
+        leechsiphon: { cost: 5500, wave: 65, name: "Leech Siphon", color: "#f43f5e" },
+        phalanxwall: { cost: 6500, wave: 75, name: "Phalanx Wall", color: "#10b981" },
+        phalanxbarrier: { cost: 7000, wave: 85, name: "Phalanx Barrier", color: "#ec4899" },
+        glitchslot: { cost: 7500, wave: 95, name: "Glitch Slot", color: "#06b6d4", isSlot: true },
+        neonreels: { cost: 9000, wave: 100, name: "Neon Reels", color: "#fbbf24", isSlot: true },
+        parasiteslot: { cost: 11000, wave: 100, name: "Parasite Slot", color: "#10b981", isSlot: true },
+        triplegridslot: { cost: 14000, wave: 100, name: "Triple Grid Slot", color: "#6366f1", isSlot: true },
+        doomsdayslot: { cost: 18000, wave: 100, name: "Doomsday Slot", color: "#f43f5e", isSlot: true },
+        doubleornothing: { cost: 25000, wave: 100, name: "Double or Nothing", color: "#ffffff" }
+      };
 
       if (firebaseConfig && firebaseConfig.projectId) {
         try {
@@ -4729,46 +4774,13 @@
       }
 
       function getUnlockedScratchersList() {
-        const scratchers = [
-          { key: "twowin", wave: 5, name: "Two Win Scratcher", color: "#a855f7" },
-          { key: "threefive", wave: 10, name: "3 Out Of 5 Scratcher", color: "#fbbf24" },
-          { key: "matcher", wave: 15, name: "Matcher Scratcher", color: "#ef4444" },
-          { key: "vanguardgrid", wave: 20, boss: 20, name: "Vanguard Grid Scratcher", color: "#06b6d4" },
-          { key: "tree", wave: 25, name: "Tree Out Of 3 Scratcher", color: "#10b981" },
-          { key: "radialsweep", wave: 30, name: "Radial Sweep Scratcher", color: "#a855f7" },
-          { key: "droppath", wave: 35, name: "Drop Path Scratcher", color: "#fbbf24" },
-          { key: "phantomphase", wave: 40, boss: 40, name: "Phantom Phase Scratcher", color: "#ec4899" },
-          { key: "forkchain", wave: 45, name: "Fork Chain Scratcher", color: "#3b82f6" },
-          { key: "triplelayer", wave: 50, name: "Triple Layer Scratcher", color: "#10b981" },
-          { key: "tetherlock", wave: 55, name: "Tether Lock Scratcher", color: "#6366f1" },
-          { key: "wardenvault", wave: 60, boss: 60, name: "Warden Vault Scratcher", color: "#f43f5e" },
-          { key: "pulsescan", wave: 65, name: "Pulse Scan Scratcher", color: "#06b6d4" },
-          { key: "hazardsweep", wave: 70, name: "Hazard Sweep Scratcher", color: "#10b981" },
-          { key: "trojanmatrix", wave: 75, boss: 70, name: "Trojan Matrix Scratcher", color: "#d946ef" },
-          { key: "shellgame", wave: 80, name: "Shell Game Scratcher", color: "#f59e0b" },
-          { key: "mirrormatch", wave: 85, name: "Mirror Match Scratcher", color: "#3b82f6" },
-          { key: "magneticfields", wave: 90, name: "Magnetic Fields Scratcher", color: "#6366f1" },
-          { key: "gridshift", wave: 95, name: "Grid Shift Scratcher", color: "#10b981" },
-          { key: "mirrorrefract", wave: 100, boss: 100, name: "Mirror Refract Scratcher", color: "#a855f7" },
-          { key: "siphondrain", wave: 105, name: "Siphon Drain Scratcher", color: "#fbbf24" },
-          { key: "leechsiphon", wave: 110, boss: 110, name: "Leech Siphon Scratcher", color: "#f43f5e" },
-          { key: "phalanxwall", wave: 115, name: "Phalanx Wall Scratcher", color: "#10b981" },
-          { key: "phalanxbarrier", wave: 120, boss: 120, name: "Phalanx Barrier Scratcher", color: "#ec4899" },
-          { key: "glitchslot", wave: 125, name: "Glitch Slot Machine", color: "#06b6d4" },
-          { key: "neonreels", wave: 130, boss: 130, name: "Neon Reels Slot Machine", color: "#fbbf24" },
-          { key: "parasiteslot", wave: 135, name: "Parasite Slot Machine", color: "#10b981" },
-          { key: "triplegridslot", wave: 140, boss: 140, name: "Triple Grid Slot Machine", color: "#6366f1" },
-          { key: "doomsdayslot", wave: 145, name: "Doomsday Slot Machine", color: "#f43f5e" },
-          { key: "doubleornothing", wave: 150, name: "Double or Nothing ticket", color: "#ffffff" }
-        ];
-
         const hw = saveData.highestWaveReached || saveData.currentWave || 1;
         const list = [];
-        scratchers.forEach(s => {
+        Object.entries(SCRATCHER_TICKET_CONFIGS).forEach(([key, s]) => {
           const hasWave = hw >= s.wave;
           const hasBoss = !s.boss || (saveData.bossesDefeated && saveData.bossesDefeated.includes(s.boss));
           if (hasWave && hasBoss) {
-            list.push(s.key);
+            list.push(key);
           }
         });
         return list;
@@ -5951,36 +5963,36 @@
           }
         };
 
-        updateScratcherButtonState("twowin", 10, 5);
-        updateScratcherButtonState("threefive", 50, 10);
-        updateScratcherButtonState("matcher", 250, 15);
-        updateScratcherButtonState("vanguardgrid", 150, 20, 20);
-        updateScratcherButtonState("tree", 100, 25);
-        updateScratcherButtonState("radialsweep", 350, 30);
-        updateScratcherButtonState("droppath", 500, 35);
-        updateScratcherButtonState("phantomphase", 600, 40, 40);
-        updateScratcherButtonState("forkchain", 750, 45);
-        updateScratcherButtonState("triplelayer", 1000, 50);
-        updateScratcherButtonState("tetherlock", 1250, 55);
-        updateScratcherButtonState("wardenvault", 1100, 60, 60);
-        updateScratcherButtonState("pulsescan", 1500, 65);
-        updateScratcherButtonState("hazardsweep", 1800, 70);
-        updateScratcherButtonState("trojanmatrix", 2000, 75, 70);
-        updateScratcherButtonState("shellgame", 2200, 80);
-        updateScratcherButtonState("mirrormatch", 2600, 85);
-        updateScratcherButtonState("magneticfields", 3000, 90);
-        updateScratcherButtonState("gridshift", 3500, 95);
-        updateScratcherButtonState("mirrorrefract", 3200, 100, 100);
-        updateScratcherButtonState("siphondrain", 4000, 105);
-        updateScratcherButtonState("leechsiphon", 5500, 110, 110);
-        updateScratcherButtonState("phalanxwall", 6500, 115);
-        updateScratcherButtonState("phalanxbarrier", 7000, 120, 120);
-        updateScratcherButtonState("glitchslot", 7500, 125);
-        updateScratcherButtonState("neonreels", 9000, 130, 130);
-        updateScratcherButtonState("parasiteslot", 11000, 135);
-        updateScratcherButtonState("triplegridslot", 14000, 140, 140);
-        updateScratcherButtonState("doomsdayslot", 18000, 145);
-        updateScratcherButtonState("doubleornothing", 25000, 150);
+        updateScratcherButtonState("twowin", 10, 3);
+        updateScratcherButtonState("threefive", 50, 5);
+        updateScratcherButtonState("vanguardgrid", 150, 8);
+        updateScratcherButtonState("matcher", 250, 10);
+        updateScratcherButtonState("tree", 100, 12);
+        updateScratcherButtonState("radialsweep", 350, 15);
+        updateScratcherButtonState("droppath", 500, 18);
+        updateScratcherButtonState("phantomphase", 600, 20);
+        updateScratcherButtonState("forkchain", 750, 22);
+        updateScratcherButtonState("triplelayer", 1000, 25);
+        updateScratcherButtonState("tetherlock", 1250, 28);
+        updateScratcherButtonState("wardenvault", 1100, 30);
+        updateScratcherButtonState("pulsescan", 1500, 32);
+        updateScratcherButtonState("hazardsweep", 1800, 35);
+        updateScratcherButtonState("trojanmatrix", 2000, 38);
+        updateScratcherButtonState("shellgame", 2200, 40);
+        updateScratcherButtonState("mirrormatch", 2600, 42);
+        updateScratcherButtonState("magneticfields", 3000, 45);
+        updateScratcherButtonState("gridshift", 3500, 48);
+        updateScratcherButtonState("mirrorrefract", 3200, 50);
+        updateScratcherButtonState("siphondrain", 4000, 55);
+        updateScratcherButtonState("leechsiphon", 5500, 65);
+        updateScratcherButtonState("phalanxwall", 6500, 75);
+        updateScratcherButtonState("phalanxbarrier", 7000, 85);
+        updateScratcherButtonState("glitchslot", 7500, 95);
+        updateScratcherButtonState("neonreels", 9000, 100);
+        updateScratcherButtonState("parasiteslot", 11000, 100);
+        updateScratcherButtonState("triplegridslot", 14000, 100);
+        updateScratcherButtonState("doomsdayslot", 18000, 100);
+        updateScratcherButtonState("doubleornothing", 25000, 100);
 
         const checkLock = (id, condition) => {
           const row = document.getElementById(`row-${id}`);
@@ -6175,7 +6187,7 @@
           "unlock-instruction-scratchers",
         );
         if (btnScratchers && unlockHintScratchers) {
-          if (highestWave >= 5) {
+          if (highestWave >= 3) {
             btnScratchers.disabled = false;
             btnScratchers.innerText = "NEON SCRATCHERS AND MORE";
             unlockHintScratchers.classList.add("hidden");
@@ -6188,7 +6200,7 @@
         const btnMinigames = document.getElementById("btn-open-minigames");
         const unlockHintMinigames = document.getElementById("unlock-instruction-minigames");
         if (btnMinigames) {
-          if (highestWave >= 5) {
+          if (highestWave >= 3) {
             btnMinigames.disabled = false;
             btnMinigames.innerText = "MINI-GAMES";
             if (unlockHintMinigames) unlockHintMinigames.classList.add("hidden");
@@ -6354,6 +6366,9 @@
         };
 
         const config = ticketConfigs[type] || { wave: 3, pool: 3 };
+        const wave = (typeof SCRATCHER_TICKET_CONFIGS !== "undefined" && SCRATCHER_TICKET_CONFIGS[type])
+          ? SCRATCHER_TICKET_CONFIGS[type].wave
+          : config.wave;
         
         const list = [
           "normal", "stinger", "bouncer", "splitter", "phantom", "weaver", "juggernaut",
@@ -6364,7 +6379,7 @@
         
         let available = [];
         for (let i = 0; i < list.length; i++) {
-          if (introWaves[i] <= config.wave) {
+          if (introWaves[i] < wave) {
             available.push(list[i]);
           }
         }
@@ -6453,6 +6468,16 @@
             6 + luck * 0.7,
             2 + luck * 0.5
           ];
+        }
+
+        const config = SCRATCHER_TICKET_CONFIGS[type];
+        if (config && config.wave && config.wave > 5) {
+          const difficultyFactor = (config.wave - 5) * 0.0035; 
+          for (let i = 1; i < weights.length; i++) {
+            const shift = weights[i] * difficultyFactor;
+            weights[i] = Math.max(0.5, weights[i] - shift);
+            weights[0] += shift;
+          }
         }
 
         let total = weights.reduce((a, b) => a + b, 0);
@@ -6574,361 +6599,429 @@ default: return ``;
         return 3;
       }
 
+      function getEnemyColor(enemy) {
+        const colors = {
+          normal: "#ff0055",
+          stinger: "#ffff00",
+          bouncer: "#00ffff",
+          splitter: "#ff8800",
+          phantom: "#a020f0",
+          weaver: "#ff00ff",
+          juggernaut: "#888888",
+          cloaker: "#cc0000",
+          sapper: "#006400",
+          warden: "#e0ffff",
+          pulsar: "#ffffff",
+          kamikaze: "#ff4500",
+          trojan: "#ff8c00",
+          fakeflux: "#ff8c00",
+          mirror: "#c0c0c0",
+          magnet: "#4b0082",
+          shifter: "#008080",
+          empleech: "#ffd700",
+          phalanx: "#cd7f32",
+          glitch: "#a855f7",
+          parasite: "#32cd32",
+          doomsday: "#333333",
+          boss: "#00ff00",
+          "the-boss": "#00ff00",
+          gemini: "#0ff",
+          saw: "#cc0000",
+          nullifier: "#00008b",
+          prism: "#ffffff"
+        };
+        return colors[enemy] || "#ffffff";
+      }
+
+      function getScratcherLegendHTML(type, pool) {
+        const luck = saveData.upgrades.scratcherLuck || 0;
+        let weights = [];
+        if (pool.length === 2) {
+          weights = [88 - luck * 1.5, 12 + luck * 1.5];
+        } else if (pool.length === 3) {
+          weights = [75 - luck * 2, 20 + luck * 1, 5 + luck * 1];
+        } else {
+          weights = [72 - luck * 2, 20 + luck * 0.8, 6 + luck * 0.7, 2 + luck * 0.5];
+        }
+
+        const config = SCRATCHER_TICKET_CONFIGS[type];
+        if (config && config.wave && config.wave > 5) {
+          const difficultyFactor = (config.wave - 5) * 0.0035; 
+          for (let i = 1; i < weights.length; i++) {
+            const shift = weights[i] * difficultyFactor;
+            weights[i] = Math.max(0.5, weights[i] - shift);
+            weights[0] += shift;
+          }
+        }
+
+        const totalWeight = weights.reduce((a, b) => Math.max(0, a) + Math.max(0, b), 0);
+        const percentages = weights.map(w => {
+          const val = Math.max(0, w);
+          return totalWeight > 0 ? Math.round((val / totalWeight) * 100) : 0;
+        });
+
+        const getPayoutDesc = (enemy, idx) => {
+          if (type === "twowin") {
+            return idx === 0 ? "15 F" : (idx === 1 ? "35 F" : "70 F");
+          }
+          if (type === "threefive") {
+            return idx === 0 ? "+0x" : (idx === 1 ? "+0.5x" : (idx === 2 ? "+1.0x" : "+2.0x"));
+          }
+          if (type === "tree") {
+            return idx === 0 ? "-105 F" : (idx === 1 ? "+5 F" : (idx === 2 ? "+20 F" : (idx === 3 ? "+35 F" : "+50 F")));
+          }
+          if (type === "matcher") {
+            return idx === 0 ? "-105 F" : (idx === 1 ? "-35 F" : (idx === 2 ? "+210 F" : (idx === 3 ? "+280 F" : "+350 F")));
+          }
+          if (type === "vanguardgrid" || type === "leechsiphon") {
+            const scale = type === "leechsiphon" ? 25 : 1;
+            return idx === 0 ? `+${50 * scale} F` : (idx === 1 ? `+${100 * scale} F` : (idx === 2 ? `+${200 * scale} F` : (idx === 3 ? `+${350 * scale} F` : `+${500 * scale} F`)));
+          }
+          if (type === "radialsweep") {
+            return idx === 4 ? "-150 F" : (idx === 0 ? "+50 F" : (idx === 1 ? "+100 F" : (idx === 2 ? "+200 F" : "+300 F")));
+          }
+          if (type === "droppath") {
+            return idx === 0 ? "+50 F" : (idx === 1 ? "-50 F" : (idx === 2 ? "x1.5" : "+300 F"));
+          }
+          if (type === "phantomphase") {
+            return idx === 0 ? "+800 F" : (idx === 1 ? "+1200 F" : "+2000 F");
+          }
+          if (type === "forkchain") {
+            return idx === 0 ? "x0" : (idx === 1 ? "x2" : "x3");
+          }
+          if (type === "triplelayer") {
+            return "2x/3x/4x";
+          }
+          if (type === "tetherlock" || type === "phalanxbarrier" || type === "gridshift") {
+            const scale = type === "phalanxbarrier" ? 10 : (type === "gridshift" ? 5 : 1);
+            return idx === 0 ? "0 F" : (idx === 1 ? `+${200 * scale} F` : (idx === 2 ? `+${500 * scale} F` : "+2.0x"));
+          }
+          if (type === "wardenvault") {
+            return idx === 0 ? "Alarm" : (idx === 1 ? "+300 F" : "+600 F");
+          }
+          if (type === "pulsescan") {
+            return idx === 0 ? "+100 F" : (idx === 1 ? "+250 F" : "+500 F");
+          }
+          if (type === "hazardsweep") {
+            return idx === 0 ? "+3000 F" : "Hazard";
+          }
+          if (type === "trojanmatrix") {
+            return idx === 2 ? "Virus" : (idx === 0 ? "+1500 F" : "+2500 F");
+          }
+          if (type === "shellgame") {
+            return idx === 0 ? "0 F" : (idx === 1 ? "+500 F" : "+1200 F");
+          }
+          if (type === "mirrormatch") {
+            return "+300 F";
+          }
+          if (type === "magneticfields") {
+            return idx === 0 ? "0 F" : "+600 F";
+          }
+          if (type === "mirrorrefract") {
+            return "+6000 F";
+          }
+          if (type === "siphondrain") {
+            return idx === 0 ? "Leech" : "+500 F";
+          }
+          if (type === "phalanxwall") {
+            return idx === 0 ? "+1200 F" : "Block";
+          }
+          if (type === "doubleornothing") {
+            return idx === 0 ? "Double" : "Zero";
+          }
+          return "";
+        };
+
+        let flexItems = [];
+        pool.forEach((enemy, idx) => {
+          const percentage = percentages[idx] !== undefined ? percentages[idx] : 0;
+          const payoutDesc = getPayoutDesc(enemy, idx);
+          const color = getEnemyColor(enemy);
+          flexItems.push(`
+            <div class="flex flex-col items-center text-center gap-1.5">
+              <div class="w-10 h-10 flex items-center justify-center">${getShapeHTMLForEnemy(enemy)}</div>
+              <span class="text-[11px] text-gray-400 font-bold">${percentage}%</span>
+              <span class="text-[11px] font-black tracking-wider uppercase" style="color: ${color}; text-shadow: 0 0 5px ${color}55;">${payoutDesc}</span>
+            </div>
+          `);
+        });
+
+        return `
+          <!-- Green Box: Shape Odds & Payout -->
+          <div class="w-full mt-4 p-4 bg-black/60 border border-green-500/20 rounded-xl shadow-[0_0_15px_rgba(34,197,94,0.05)] text-center flex flex-col gap-2">
+            <div class="text-[11px] font-black text-green-400 tracking-widest uppercase mb-1">
+              SHAPE ODDS & PAYOUT
+            </div>
+            <div class="border-b border-white/5 w-full pb-1 mb-1"></div>
+            <div class="flex justify-around items-center w-full gap-2">
+              ${flexItems.join("")}
+            </div>
+          </div>
+        `;
+      }
+
       function getScratcherPlayHTML(type, config) {
         const circleNode = (idx, customClass = "") => `
           <div class="scratch-circle relative w-[60px] h-[60px] bg-[#111] rounded-full border border-white/10 ${customClass}" data-idx="${idx}">
-            <div id="sc-sym-${type}-${idx}" class="absolute inset-0 flex items-center justify-center pointer-events-none z-10"></div>
+            <div id="sc-sym-${type}-${idx}" class="absolute inset-0 flex items-center justify-center pointer-events-none z-10 opacity-0 transition-opacity duration-200"></div>
             <canvas class="scratch-cover absolute inset-0 z-20" width="60" height="60" data-idx="${idx}"></canvas>
           </div>
         `;
         const boxNode = (idx, customClass = "") => `
           <div class="scratch-box relative w-[55px] h-[55px] bg-[#111] rounded-lg border border-white/10 ${customClass}" data-idx="${idx}">
-            <div id="sc-sym-${type}-${idx}" class="absolute inset-0 flex items-center justify-center pointer-events-none z-10"></div>
+            <div id="sc-sym-${type}-${idx}" class="absolute inset-0 flex items-center justify-center pointer-events-none z-10 opacity-0 transition-opacity duration-200"></div>
             <canvas class="scratch-cover absolute inset-0 z-20" width="55" height="55" data-idx="${idx}"></canvas>
           </div>
         `;
 
+        if (config.isSlot) {
+          const isTriple = type === "triplegridslot";
+          const gridHTML = (gridIdx) => `
+            <div class="flex gap-2 justify-center items-center bg-black/60 p-2 rounded-xl border border-white/10 overflow-hidden relative w-[180px] h-[80px]">
+              <div class="w-[45px] h-[64px] overflow-hidden bg-black border border-gray-800 rounded relative">
+                <div id="reel-strip-${gridIdx}-0" class="flex flex-col gap-1.5 absolute left-0 w-full" style="top: 0px;"></div>
+              </div>
+              <div class="w-[45px] h-[64px] overflow-hidden bg-black border border-gray-800 rounded relative">
+                <div id="reel-strip-${gridIdx}-1" class="flex flex-col gap-1.5 absolute left-0 w-full" style="top: 0px;"></div>
+              </div>
+              <div class="w-[45px] h-[64px] overflow-hidden bg-black border border-gray-800 rounded relative">
+                <div id="reel-strip-${gridIdx}-2" class="flex flex-col gap-1.5 absolute left-0 w-full" style="top: 0px;"></div>
+              </div>
+            </div>
+          `;
+
+          return `
+            <!-- Name of the slot (no border box) -->
+            <div class="w-full text-center mb-6">
+              <h2 class="text-2xl font-black tracking-widest uppercase" style="color: ${config.color}; text-shadow: 0 0 10px ${config.color}">${config.name}</h2>
+            </div>
+            
+            <div class="w-[280px] bg-[#1f1f1f] border-4 rounded-2xl p-4 flex flex-col items-center gap-4 relative shadow-[0_0_30px_rgba(0,0,0,0.8)] mb-4" style="border-color: ${config.color}">
+              ${isTriple ? `
+                <div class="flex flex-col gap-3">
+                  ${gridHTML(0)}
+                  ${gridHTML(1)}
+                  ${gridHTML(2)}
+                </div>
+              ` : gridHTML(0)}
+              <div class="flex gap-4 items-center w-full justify-between mt-2">
+                <div class="text-xs font-black" style="color: ${config.color}">SPIN: ${config.cost} F</div>
+                <button id="btn-spin-slots" class="btn font-black px-6 py-2 shadow-lg" style="background-color: ${config.color}; color: #000;" onclick="spinSlotReels('${type}')">SPIN</button>
+              </div>
+            </div>
+
+            <!-- Yellow Box: Result / Actions -->
+            <div class="w-full p-4 bg-black/60 border border-yellow-500/30 rounded-xl shadow-[0_0_15px_rgba(234,179,8,0.05)] flex flex-col items-center">
+              <div id="scratcher-result-${type}" class="text-lg font-black text-yellow-400 h-8 text-center transition-all leading-tight"></div>
+              <div class="flex gap-2 w-full mt-2 hidden animate-pulse" id="btn-group-${type}">
+                <button class="btn flex-1 !bg-gray-800 !text-white" onclick="resetScratcher()">BACK</button>
+                <button class="btn flex-grow-[2]" style="background-color: ${config.color}; color: #000; font-weight: 900;" onclick="buyScratcherTicket('${type}')">SPIN AGAIN</button>
+              </div>
+            </div>
+          `;
+        }
+
+        // Standard Scratchers Layout
+        let boardHTML = "";
+        let customBoardClass = "";
+        let customBoardStyle = "";
+
         if (type === "twowin") {
-          return `
-            <div class="w-full text-center mb-6">
-              <h2 class="text-2xl font-black text-[#a855f7] tracking-widest" style="text-shadow: 0 0 10px #a855f7">TWO WIN</h2>
-            </div>
-            <div class="scratcher-board-container relative w-[240px] h-[100px] bg-[#1a1a1a] rounded-xl border-2 border-[#a855f7] shadow-[0_0_20px_rgba(168,85,247,0.2)] flex justify-center items-center gap-4 touch-none">
-              ${circleNode(0)} ${circleNode(1)} ${circleNode(2)}
-            </div>
-          `;
+          boardHTML = `${circleNode(0)} ${circleNode(1)} ${circleNode(2)}`;
+          customBoardClass = "flex justify-center items-center gap-4 p-4";
         }
-        if (type === "threefive") {
-          return `
-            <div class="w-full text-center mb-6">
-              <h2 class="text-2xl font-black text-[#fbbf24] tracking-widest" style="text-shadow: 0 0 10px #fbbf24">3 OUT OF 5</h2>
-            </div>
-            <div class="scratcher-board-container relative w-[280px] h-[100px] bg-[#1a1a1a] rounded-xl border-2 border-[#fbbf24] shadow-[0_0_20px_rgba(251,191,36,0.2)] flex justify-center items-center gap-2 touch-none">
-              ${circleNode(0)} ${circleNode(1)} ${circleNode(2)} ${circleNode(3)} ${circleNode(4)}
-            </div>
-          `;
+        else if (type === "threefive") {
+          boardHTML = `${circleNode(0)} ${circleNode(1)} ${circleNode(2)} ${circleNode(3)} ${circleNode(4)}`;
+          customBoardClass = "flex justify-center items-center gap-2 p-4";
         }
-        if (type === "tree") {
-          return `
-            <div class="w-full text-center mb-6">
-              <h2 class="text-2xl font-black text-[#10b981] tracking-widest" style="text-shadow: 0 0 10px #10b981">TREE OUT OF 3</h2>
-            </div>
-            <div class="scratcher-board-container relative w-[240px] h-[240px] bg-[#1a1a1a] rounded-xl border-2 border-[#10b981] shadow-[0_0_20px_rgba(16,185,129,0.2)] touch-none">
-              <div class="absolute left-[90px] top-[15px]">${circleNode(0)}</div>
-              <div class="absolute left-[40px] top-[85px]">${circleNode(1)}</div>
-              <div class="absolute left-[140px] top-[85px]">${circleNode(2)}</div>
-              <div class="absolute left-[15px] top-[155px]">${circleNode(3)}</div>
-              <div class="absolute left-[85px] top-[155px]">${circleNode(4)}</div>
-              <div class="absolute left-[155px] top-[155px]">${circleNode(5)}</div>
-            </div>
+        else if (type === "tree") {
+          boardHTML = `
+            <div class="absolute left-[90px] top-[15px]">${circleNode(0)}</div>
+            <div class="absolute left-[40px] top-[85px]">${circleNode(1)}</div>
+            <div class="absolute left-[140px] top-[85px]">${circleNode(2)}</div>
+            <div class="absolute left-[15px] top-[155px]">${circleNode(3)}</div>
+            <div class="absolute left-[85px] top-[155px]">${circleNode(4)}</div>
+            <div class="absolute left-[155px] top-[155px]">${circleNode(5)}</div>
           `;
+          customBoardClass = "w-[240px] h-[240px] relative";
         }
-        if (type === "matcher") {
-          return `
-            <div class="w-full text-center mb-4">
-              <h2 class="text-2xl font-black text-[#ef4444] tracking-widest" style="text-shadow: 0 0 10px #ef4444">MATCHER</h2>
-            </div>
+        else if (type === "matcher") {
+          boardHTML = `
             <div class="flex items-center gap-4">
               <div class="flex flex-col items-center">
                 <span class="text-xs text-gray-500 font-bold mb-1">YOUR SYMBOLS</span>
-                <div class="scratcher-board-container relative w-[130px] h-[190px] bg-[#1a1a1a] rounded-xl border-2 border-[#ef4444]/60 flex flex-wrap p-3 justify-center items-center gap-2 touch-none">
+                <div class="scratcher-board-container relative w-[138px] bg-[#1a1a1a] rounded-xl border-2 border-[#ef4444]/60 grid grid-cols-2 gap-2 p-3 touch-none">
                   ${boxNode(0)} ${boxNode(1)} ${boxNode(2)} ${boxNode(3)} ${boxNode(4)} ${boxNode(5)}
                 </div>
               </div>
               <div class="flex flex-col items-center">
                 <span class="text-xs text-gray-500 font-bold mb-1">WINNING</span>
-                <div class="scratcher-board-container relative w-[76px] h-[190px] bg-[#1a1a1a] rounded-xl border-2 border-[#ef4444] shadow-[0_0_20px_rgba(239,68,68,0.15)] flex flex-col p-3 justify-center items-center gap-2 touch-none">
+                <div class="scratcher-board-container relative w-[82px] bg-[#1a1a1a] rounded-xl border-2 border-[#ef4444] shadow-[0_0_20px_rgba(239,68,68,0.15)] grid grid-cols-1 gap-2 p-3 touch-none">
                   ${boxNode(6)} ${boxNode(7)} ${boxNode(8)}
                 </div>
               </div>
             </div>
           `;
+          customBoardClass = "p-0 border-none bg-transparent shadow-none";
         }
-        if (type === "vanguardgrid" || type === "leechsiphon") {
-          return `
-            <div class="w-full text-center mb-4">
-              <h2 class="text-2xl font-black tracking-widest" style="color: ${config.color}; text-shadow: 0 0 10px ${config.color}">${config.name}</h2>
-            </div>
-            <div class="scratcher-board-container relative w-[200px] h-[200px] bg-[#1a1a1a] rounded-xl border-2" style="border-color: ${config.color}; box-shadow: 0 0 20px ${config.color}22; display: flex; flex-wrap: wrap; padding: 12px; justify-content: center; align-items: center; gap: 8px; touch-action: none;">
-              ${boxNode(0)} ${boxNode(1)} ${boxNode(2)}
-              ${boxNode(3)} ${boxNode(4)} ${boxNode(5)}
-              ${boxNode(6)} ${boxNode(7)} ${boxNode(8)}
-            </div>
+        else if (type === "vanguardgrid" || type === "leechsiphon") {
+          boardHTML = `
+            ${boxNode(0)} ${boxNode(1)} ${boxNode(2)}
+            ${boxNode(3)} ${boxNode(4)} ${boxNode(5)}
+            ${boxNode(6)} ${boxNode(7)} ${boxNode(8)}
           `;
+          customBoardClass = "grid grid-cols-3 gap-2.5 p-4";
         }
-        if (type === "radialsweep") {
-          return `
-            <div class="w-full text-center mb-4">
-              <h2 class="text-2xl font-black text-[#a855f7] tracking-widest" style="text-shadow: 0 0 10px #a855f7">RADIAL SWEEP</h2>
-            </div>
-            <div class="scratcher-board-container relative w-[240px] h-[240px] bg-[#1a1a1a] rounded-xl border-2 border-[#a855f7] touch-none">
-              <div class="absolute left-[90px] top-[15px]">${circleNode(0)}</div>
-              <div class="absolute left-[155px] top-[75px]">${circleNode(1)}</div>
-              <div class="absolute left-[130px] top-[155px]">${circleNode(2)}</div>
-              <div class="absolute left-[50px] top-[155px]">${circleNode(3)}</div>
-              <div class="absolute left-[25px] top-[75px]">${circleNode(4)}</div>
-              <div class="absolute left-[90px] top-[85px] border-2 border-red-500 rounded-full" style="box-shadow: 0 0 10px red;">${circleNode(5)}</div>
-            </div>
+        else if (type === "radialsweep") {
+          boardHTML = `
+            <div class="absolute left-[90px] top-[15px]">${circleNode(0)}</div>
+            <div class="absolute left-[155px] top-[75px]">${circleNode(1)}</div>
+            <div class="absolute left-[130px] top-[155px]">${circleNode(2)}</div>
+            <div class="absolute left-[50px] top-[155px]">${circleNode(3)}</div>
+            <div class="absolute left-[25px] top-[75px]">${circleNode(4)}</div>
+            <div class="absolute left-[90px] top-[85px] border-2 border-red-500 rounded-full" style="box-shadow: 0 0 10px red;">${circleNode(5)}</div>
           `;
+          customBoardClass = "w-[240px] h-[240px] relative";
         }
-        if (type === "droppath") {
-          return `
-            <div class="w-full text-center mb-4">
-              <h2 class="text-2xl font-black text-[#fbbf24] tracking-widest" style="text-shadow: 0 0 10px #fbbf24">DROP PATH</h2>
-            </div>
-            <div class="scratcher-board-container relative w-[240px] h-[240px] bg-[#1a1a1a] rounded-xl border-2 border-[#fbbf24] touch-none">
-              <div class="absolute left-[90px] top-[15px]">${circleNode(0)}</div>
-              <div class="absolute left-[40px] top-[95px]">${circleNode(1)}</div>
-              <div class="absolute left-[90px] top-[95px]">${circleNode(2)}</div>
-              <div class="absolute left-[140px] top-[95px]">${circleNode(3)}</div>
-              <div class="absolute left-[60px] top-[165px]">${circleNode(4)}</div>
-              <div class="absolute left-[120px] top-[165px]">${circleNode(5)}</div>
-            </div>
+        else if (type === "droppath") {
+          boardHTML = `
+            <div class="absolute left-[90px] top-[15px]">${circleNode(0)}</div>
+            <div class="absolute left-[40px] top-[95px]">${circleNode(1)}</div>
+            <div class="absolute left-[90px] top-[95px]">${circleNode(2)}</div>
+            <div class="absolute left-[140px] top-[95px]">${circleNode(3)}</div>
+            <div class="absolute left-[60px] top-[165px]">${circleNode(4)}</div>
+            <div class="absolute left-[120px] top-[165px]">${circleNode(5)}</div>
           `;
+          customBoardClass = "w-[240px] h-[240px] relative";
         }
-        if (type === "phantomphase") {
-          return `
-            <div class="w-full text-center mb-4">
-              <h2 class="text-2xl font-black text-[#ec4899] tracking-widest" style="text-shadow: 0 0 10px #ec4899">PHANTOM PHASE</h2>
-            </div>
-            <div class="scratcher-board-container relative w-[210px] h-[150px] bg-[#1a1a1a] rounded-xl border-2 border-[#ec4899] flex flex-wrap p-3 justify-center items-center gap-4 touch-none">
-              ${circleNode(0)} ${circleNode(1)} ${circleNode(2)}
-              ${circleNode(3)} ${circleNode(4)} ${circleNode(5)}
-            </div>
+        else if (type === "phantomphase" || type === "wardenvault" || type === "siphondrain") {
+          boardHTML = `
+            ${circleNode(0)} ${circleNode(1)} ${circleNode(2)}
+            ${circleNode(3)} ${circleNode(4)} ${circleNode(5)}
           `;
+          customBoardClass = "grid grid-cols-3 gap-3.5 p-4";
         }
-        if (type === "forkchain") {
-          return `
-            <div class="w-full text-center mb-4">
-              <h2 class="text-2xl font-black text-[#3b82f6] tracking-widest" style="text-shadow: 0 0 10px #3b82f6">FORK CHAIN</h2>
-            </div>
-            <div class="scratcher-board-container relative w-[260px] h-[250px] bg-[#1a1a1a] rounded-xl border-2 border-[#3b82f6] touch-none">
-              <div class="absolute left-[100px] top-[15px]">${circleNode(0)}</div>
-              <div class="absolute left-[50px] top-[95px]">${circleNode(1)}</div>
-              <div class="absolute left-[150px] top-[95px]">${circleNode(2)}</div>
-              <div class="absolute left-[15px] top-[175px]">${circleNode(3)}</div>
-              <div class="absolute left-[85px] top-[175px]">${circleNode(4)}</div>
-              <div class="absolute left-[120px] top-[175px]">${circleNode(5)}</div>
-              <div class="absolute left-[185px] top-[175px]">${circleNode(6)}</div>
-            </div>
+        else if (type === "forkchain") {
+          boardHTML = `
+            <div class="absolute left-[100px] top-[15px]">${circleNode(0)}</div>
+            <div class="absolute left-[50px] top-[95px]">${circleNode(1)}</div>
+            <div class="absolute left-[150px] top-[95px]">${circleNode(2)}</div>
+            <div class="absolute left-[15px] top-[175px]">${circleNode(3)}</div>
+            <div class="absolute left-[85px] top-[175px]">${circleNode(4)}</div>
+            <div class="absolute left-[120px] top-[175px]">${circleNode(5)}</div>
+            <div class="absolute left-[185px] top-[175px]">${circleNode(6)}</div>
           `;
+          customBoardClass = "w-[260px] h-[250px] relative";
         }
-        if (type === "triplelayer") {
-          return `
-            <div class="w-full text-center mb-4">
-              <h2 class="text-2xl font-black text-[#10b981] tracking-widest" style="text-shadow: 0 0 10px #10b981">TRIPLE LAYER</h2>
-            </div>
-            <div class="scratcher-board-container relative w-[160px] h-[160px] bg-[#1a1a1a] rounded-xl border-2 border-[#10b981] flex flex-wrap p-3 justify-center items-center gap-4 touch-none">
-              ${boxNode(0)} ${boxNode(1)}
-              ${boxNode(2)} ${boxNode(3)}
-            </div>
+        else if (type === "triplelayer") {
+          boardHTML = `
+            ${boxNode(0)} ${boxNode(1)}
+            ${boxNode(2)} ${boxNode(3)}
           `;
+          customBoardClass = "grid grid-cols-2 gap-3.5 p-4";
         }
-        if (type === "tetherlock" || type === "gridshift" || type === "phalanxbarrier") {
-          return `
-            <div class="w-full text-center mb-4">
-              <h2 class="text-2xl font-black tracking-widest" style="color: ${config.color}; text-shadow: 0 0 10px ${config.color}">${config.name}</h2>
-            </div>
-            <div class="scratcher-board-container relative w-[250px] h-[250px] bg-[#1a1a1a] rounded-xl border-2 flex flex-wrap p-3 justify-center items-center gap-2 touch-none" style="border-color: ${config.color}">
-              ${new Array(16).fill(0).map((_, i) => boxNode(i)).join("")}
-            </div>
-          `;
+        else if (type === "tetherlock" || type === "gridshift" || type === "phalanxbarrier") {
+          boardHTML = new Array(16).fill(0).map((_, i) => boxNode(i)).join("");
+          customBoardClass = "grid grid-cols-4 gap-2 p-3";
         }
-        if (type === "wardenvault") {
-          return `
-            <div class="w-full text-center mb-4">
-              <h2 class="text-2xl font-black text-[#f43f5e] tracking-widest" style="text-shadow: 0 0 10px #f43f5e">WARDEN VAULT</h2>
-            </div>
-            <div class="scratcher-board-container relative w-[210px] h-[150px] bg-[#1a1a1a] rounded-xl border-2 border-[#f43f5e] flex flex-wrap p-3 justify-center items-center gap-4 touch-none">
-              ${new Array(6).fill(0).map((_, i) => circleNode(i)).join("")}
-            </div>
-          `;
+        else if (type === "pulsescan" || type === "magneticfields") {
+          boardHTML = new Array(9).fill(0).map((_, i) => circleNode(i)).join("");
+          customBoardClass = "grid grid-cols-3 gap-2.5 p-4";
         }
-        if (type === "pulsescan") {
-          return `
-            <div class="w-full text-center mb-4">
-              <h2 class="text-2xl font-black text-[#06b6d4] tracking-widest" style="text-shadow: 0 0 10px #06b6d4">PULSE SCAN</h2>
-            </div>
-            <div class="scratcher-board-container relative w-[210px] h-[210px] bg-[#1a1a1a] rounded-xl border-2 border-[#06b6d4] flex flex-wrap p-3 justify-center items-center gap-2 touch-none">
-              ${new Array(9).fill(0).map((_, i) => circleNode(i)).join("")}
-            </div>
-          `;
+        else if (type === "hazardsweep") {
+          boardHTML = new Array(25).fill(0).map((_, i) => boxNode(i)).join("");
+          customBoardClass = "grid grid-cols-5 gap-1.5 p-3";
         }
-        if (type === "hazardsweep") {
-          return `
-            <div class="w-full text-center mb-4">
-              <h2 class="text-2xl font-black text-[#10b981] tracking-widest" style="text-shadow: 0 0 10px #10b981">HAZARD SWEEP</h2>
-            </div>
-            <div class="scratcher-board-container relative w-[300px] h-[300px] bg-[#1a1a1a] rounded-xl border-2 border-[#10b981] flex flex-wrap p-3 justify-center items-center gap-2 touch-none">
-              ${new Array(25).fill(0).map((_, i) => boxNode(i)).join("")}
-            </div>
-          `;
+        else if (type === "trojanmatrix" || type === "shellgame") {
+          boardHTML = `${boxNode(0)} ${boxNode(1)} ${boxNode(2)}`;
+          customBoardClass = "flex justify-center items-center gap-4 p-4";
         }
-        if (type === "trojanmatrix" || type === "shellgame") {
-          return `
-            <div class="w-full text-center mb-4">
-              <h2 class="text-2xl font-black tracking-widest" style="color: ${config.color}; text-shadow: 0 0 10px ${config.color}">${config.name}</h2>
-            </div>
-            <div class="scratcher-board-container relative w-[240px] h-[100px] bg-[#1a1a1a] rounded-xl border-2 flex justify-center items-center gap-4 touch-none" style="border-color: ${config.color}">
-              ${boxNode(0)} ${boxNode(1)} ${boxNode(2)}
-            </div>
-          `;
-        }
-        if (type === "mirrormatch") {
-          return `
-            <div class="w-full text-center mb-4">
-              <h2 class="text-2xl font-black text-[#3b82f6] tracking-widest" style="text-shadow: 0 0 10px #3b82f6">MIRROR MATCH</h2>
-            </div>
+        else if (type === "mirrormatch") {
+          boardHTML = `
             <div class="flex gap-4 justify-center items-center">
-              <div class="scratcher-board-container relative w-[130px] h-[130px] bg-[#1a1a1a] rounded-xl border border-white/10 flex flex-wrap p-2 justify-center items-center gap-1.5 touch-none">
+              <div class="scratcher-board-container relative grid grid-cols-3 gap-1.5 p-3 bg-[#1a1a1a] rounded-xl border touch-none w-[195px]" style="border-color: ${config.color}88">
                 ${new Array(9).fill(0).map((_, i) => boxNode(i)).join("")}
               </div>
-              <div class="scratcher-board-container relative w-[130px] h-[130px] bg-[#1a1a1a] rounded-xl border border-white/10 flex flex-wrap p-2 justify-center items-center gap-1.5 touch-none">
+              <div class="scratcher-board-container relative grid grid-cols-3 gap-1.5 p-3 bg-[#1a1a1a] rounded-xl border touch-none w-[195px]" style="border-color: ${config.color}88">
                 ${new Array(9).fill(0).map((_, i) => boxNode(i + 9)).join("")}
               </div>
             </div>
           `;
+          customBoardClass = "p-0 border-none bg-transparent shadow-none";
         }
-        if (type === "magneticfields") {
-          return `
-            <div class="w-full text-center mb-4">
-              <h2 class="text-2xl font-black text-[#6366f1] tracking-widest" style="text-shadow: 0 0 10px #6366f1">MAGNETIC FIELDS</h2>
-            </div>
-            <div class="scratcher-board-container relative w-[210px] h-[210px] bg-[#1a1a1a] rounded-xl border-2 border-[#6366f1] flex flex-wrap p-3 justify-center items-center gap-2 touch-none">
-              ${new Array(9).fill(0).map((_, i) => boxNode(i)).join("")}
-            </div>
-          `;
-        }
-        if (type === "mirrorrefract") {
-          return `
-            <div class="w-full text-center mb-4">
-              <h2 class="text-2xl font-black text-[#a855f7] tracking-widest" style="text-shadow: 0 0 10px #a855f7">MIRROR REFRACT</h2>
-            </div>
+        else if (type === "mirrorrefract") {
+          boardHTML = `
             <div class="flex gap-4 justify-center items-center">
-              <div class="scratcher-board-container relative w-[76px] h-[250px] bg-[#1a1a1a] rounded-xl border border-white/10 flex flex-col p-2 justify-center items-center gap-2 touch-none">
+              <div class="scratcher-board-container relative grid grid-cols-1 gap-2 p-3 bg-[#1a1a1a] rounded-xl border touch-none w-[84px]" style="border-color: ${config.color}88">
                 ${new Array(4).fill(0).map((_, i) => circleNode(i)).join("")}
               </div>
-              <div class="scratcher-board-container relative w-[76px] h-[250px] bg-[#1a1a1a] rounded-xl border border-white/10 flex flex-col p-2 justify-center items-center gap-2 touch-none">
+              <div class="scratcher-board-container relative grid grid-cols-1 gap-2 p-3 bg-[#1a1a1a] rounded-xl border touch-none w-[84px]" style="border-color: ${config.color}88">
                 ${new Array(4).fill(0).map((_, i) => circleNode(i + 4)).join("")}
               </div>
             </div>
           `;
+          customBoardClass = "p-0 border-none bg-transparent shadow-none";
         }
-        if (type === "siphondrain") {
-          return `
-            <div class="w-full text-center mb-4">
-              <h2 class="text-2xl font-black text-[#fbbf24] tracking-widest" style="text-shadow: 0 0 10px #fbbf24">SIPHON DRAIN</h2>
-            </div>
-            <div class="scratcher-board-container relative w-[210px] h-[150px] bg-[#1a1a1a] rounded-xl border-2 border-[#fbbf24] flex flex-wrap p-3 justify-center items-center gap-4 touch-none">
-              ${new Array(6).fill(0).map((_, i) => circleNode(i)).join("")}
-            </div>
-          `;
-        }
-        if (type === "phalanxwall") {
+        else if (type === "phalanxwall") {
           const shieldBar = (idx) => `
             <div class="scratch-box relative w-[220px] h-[22px] bg-[#111] rounded border border-white/10" data-idx="${idx}">
-              <div id="sc-sym-${type}-${idx}" class="absolute inset-0 flex items-center justify-center pointer-events-none z-10 scale-[0.7]"></div>
+              <div id="sc-sym-${type}-${idx}" class="absolute inset-0 flex items-center justify-center pointer-events-none z-10 scale-[0.7] opacity-0 transition-opacity duration-200"></div>
               <canvas class="scratch-cover absolute inset-0 z-20" width="220" height="22" data-idx="${idx}"></canvas>
             </div>
           `;
-          return `
-            <div class="w-full text-center mb-4">
-              <h2 class="text-2xl font-black text-[#10b981] tracking-widest" style="text-shadow: 0 0 10px #10b981">PHALANX WALL</h2>
-            </div>
-            <div class="scratcher-board-container relative w-[240px] h-[240px] bg-[#1a1a1a] rounded-xl border-2 border-[#10b981] flex flex-col p-3 justify-center items-center gap-1.5 touch-none">
-              ${new Array(8).fill(0).map((_, i) => shieldBar(i)).join("")}
-            </div>
-          `;
+          boardHTML = new Array(8).fill(0).map((_, i) => shieldBar(i)).join("");
+          customBoardClass = "flex flex-col p-3 justify-center items-center gap-1.5";
         }
-        if (type === "doubleornothing") {
+        else if (type === "doubleornothing") {
           const largeCircleNode = (idx, label) => `
             <div class="scratch-circle relative w-[80px] h-[80px] bg-[#111] rounded-full border border-white/10" data-idx="${idx}">
-              <div id="sc-sym-${type}-${idx}" class="absolute inset-0 flex items-center justify-center pointer-events-none z-10 text-[0.65rem] font-bold text-center p-1">${label}</div>
+              <div id="sc-sym-${type}-${idx}" class="absolute inset-0 flex items-center justify-center pointer-events-none z-10 text-[0.65rem] font-bold text-center p-1 opacity-0 transition-opacity duration-200">${label}</div>
               <canvas class="scratch-cover absolute inset-0 z-20 shadow-lg" width="80" height="80" data-idx="${idx}"></canvas>
             </div>
           `;
-          return `
-            <div class="w-full text-center mb-6">
-              <h2 class="text-2xl font-black text-[#ffffff] tracking-widest" style="text-shadow: 0 0 10px #ffffff">DOUBLE OR NOTHING</h2>
-            </div>
-            <div class="scratcher-board-container relative w-[240px] h-[120px] bg-[#1a1a1a] rounded-xl border-2 border-[#ffffff] flex justify-center items-center gap-6 touch-none">
-              ${largeCircleNode(0, "DOUBLE")}
-              ${largeCircleNode(1, "NOTHING")}
-            </div>
+          boardHTML = `
+            ${largeCircleNode(0, "DOUBLE")}
+            ${largeCircleNode(1, "NOTHING")}
           `;
+          customBoardClass = "flex justify-center items-center gap-6 p-4";
         }
 
-        // Slots layout
-        const isTriple = type === "triplegridslot";
-        const gridHTML = (gridIdx) => `
-          <div class="flex gap-2 justify-center items-center bg-black/60 p-2 rounded-xl border border-white/10 overflow-hidden relative w-[180px] h-[80px]">
-            <div class="w-[45px] h-[64px] overflow-hidden bg-black border border-gray-800 rounded relative">
-              <div id="reel-strip-${gridIdx}-0" class="flex flex-col gap-1.5 absolute left-0 w-full" style="top: 0px;"></div>
-            </div>
-            <div class="w-[45px] h-[64px] overflow-hidden bg-black border border-gray-800 rounded relative">
-              <div id="reel-strip-${gridIdx}-1" class="flex flex-col gap-1.5 absolute left-0 w-full" style="top: 0px;"></div>
-            </div>
-            <div class="w-[45px] h-[64px] overflow-hidden bg-black border border-gray-800 rounded relative">
-              <div id="reel-strip-${gridIdx}-2" class="flex flex-col gap-1.5 absolute left-0 w-full" style="top: 0px;"></div>
-            </div>
-          </div>
-        `;
+        const pool = getEnemyPoolForScratcher(type);
+        const legendHTML = getScratcherLegendHTML(type, pool);
+
+        const borderStyle = customBoardClass.includes("border-none")
+          ? ""
+          : `border-color: ${config.color}; box-shadow: 0 0 20px ${config.color}22;`;
 
         return `
-          <div class="w-full text-center mb-4">
-            <h2 class="text-2xl font-black tracking-widest" style="color: ${config.color}; text-shadow: 0 0 10px ${config.color}">${config.name}</h2>
+          <!-- Name of the scratcher (no border box) -->
+          <div class="w-full text-center mb-6">
+            <h2 class="text-2xl font-black tracking-widest uppercase" style="color: ${config.color}; text-shadow: 0 0 10px ${config.color}">${config.name}</h2>
           </div>
-          <div class="w-[280px] bg-[#1f1f1f] border-4 rounded-2xl p-4 flex flex-col items-center gap-4 relative shadow-[0_0_30px_rgba(0,0,0,0.8)]" style="border-color: ${config.color}">
-            ${isTriple ? `
-              <div class="flex flex-col gap-3">
-                ${gridHTML(0)}
-                ${gridHTML(1)}
-                ${gridHTML(2)}
-              </div>
-            ` : gridHTML(0)}
-            <div class="flex gap-4 items-center w-full justify-between mt-2">
-              <div class="text-xs font-black" style="color: ${config.color}">SPIN: ${config.cost} F</div>
-              <button id="btn-spin-slots" class="btn font-black px-6 py-2 shadow-lg" style="background-color: ${config.color}; color: #000;" onclick="spinSlotReels('${type}')">SPIN</button>
+
+          <!-- Cyan Box: The scratchable area container -->
+          <div class="w-full flex justify-center items-center p-4 bg-black/40 border border-cyan-500/20 rounded-2xl shadow-[0_0_15px_rgba(6,182,212,0.05)]">
+            <div class="scratcher-board-container relative bg-[#1a1a1a] rounded-xl border-2 touch-none ${customBoardClass}" style="${borderStyle} ${customBoardStyle}">
+              ${boardHTML}
+            </div>
+          </div>
+
+          <!-- Green Box: Possibilities & Prizes -->
+          ${legendHTML}
+
+          <!-- Yellow Box: Claim results / Buttons -->
+          <div class="w-full mt-4 p-4 bg-black/60 border border-yellow-500/30 rounded-xl shadow-[0_0_15px_rgba(234,179,8,0.05)] flex flex-col items-center">
+            <div id="scratcher-result-${type}" class="text-lg font-black text-yellow-400 h-8 text-center transition-all leading-tight"></div>
+            <div class="flex gap-2 w-full mt-2 hidden animate-pulse" id="btn-group-${type}">
+              <button class="btn flex-1 !bg-gray-800 !text-white" onclick="resetScratcher()">BACK</button>
+              <button class="btn flex-grow-[2]" style="background-color: ${config.color}; color: #000; font-weight: 900;" onclick="buyScratcherTicket('${type}')">PLAY AGAIN</button>
             </div>
           </div>
         `;
       }
 
       window.buyScratcherTicket = (type, isRestore = false) => {
-        const ticketConfigs = {
-          twowin: { cost: 10, wave: 5, name: "Two Win", color: "#a855f7" },
-          threefive: { cost: 50, wave: 10, name: "3 Out Of 5", color: "#fbbf24" },
-          matcher: { cost: 250, wave: 15, name: "Matcher", color: "#ef4444" },
-          vanguardgrid: { cost: 150, wave: 20, boss: 20, name: "Vanguard Grid", color: "#06b6d4" },
-          tree: { cost: 100, wave: 25, name: "Tree Out Of 3", color: "#10b981" },
-          radialsweep: { cost: 350, wave: 30, name: "Radial Sweep", color: "#a855f7" },
-          droppath: { cost: 500, wave: 35, name: "Drop Path", color: "#fbbf24" },
-          phantomphase: { cost: 600, wave: 40, boss: 40, name: "Phantom Phase", color: "#ec4899" },
-          forkchain: { cost: 750, wave: 45, name: "Fork Chain", color: "#3b82f6" },
-          triplelayer: { cost: 1000, wave: 50, name: "Triple Layer", color: "#10b981" },
-          tetherlock: { cost: 1250, wave: 55, name: "Tether Lock", color: "#6366f1" },
-          wardenvault: { cost: 1100, wave: 60, boss: 60, name: "Warden Vault", color: "#f43f5e" },
-          pulsescan: { cost: 1500, wave: 65, name: "Pulse Scan", color: "#06b6d4" },
-          hazardsweep: { cost: 1800, wave: 70, name: "Hazard Sweep", color: "#10b981" },
-          trojanmatrix: { cost: 2000, wave: 75, boss: 70, name: "Trojan Matrix", color: "#d946ef" },
-          shellgame: { cost: 2200, wave: 80, name: "Shell Game", color: "#f59e0b" },
-          mirrormatch: { cost: 2600, wave: 85, name: "Mirror Match", color: "#3b82f6" },
-          magneticfields: { cost: 3000, wave: 90, name: "Magnetic Fields", color: "#6366f1" },
-          gridshift: { cost: 3500, wave: 95, name: "Grid Shift", color: "#10b981" },
-          mirrorrefract: { cost: 3200, wave: 100, boss: 100, name: "Mirror Refract", color: "#a855f7" },
-          siphondrain: { cost: 4000, wave: 105, name: "Siphon Drain", color: "#fbbf24" },
-          leechsiphon: { cost: 5500, wave: 110, boss: 110, name: "Leech Siphon", color: "#f43f5e" },
-          phalanxwall: { cost: 6500, wave: 115, name: "Phalanx Wall", color: "#10b981" },
-          phalanxbarrier: { cost: 7000, wave: 120, boss: 120, name: "Phalanx Barrier", color: "#ec4899" },
-          glitchslot: { cost: 7500, wave: 125, name: "Glitch Slot", color: "#06b6d4", isSlot: true },
-          neonreels: { cost: 9000, wave: 130, boss: 130, name: "Neon Reels", color: "#fbbf24", isSlot: true },
-          parasiteslot: { cost: 11000, wave: 135, name: "Parasite Slot", color: "#10b981", isSlot: true },
-          triplegridslot: { cost: 14000, wave: 140, boss: 140, name: "Triple Grid Slot", color: "#6366f1", isSlot: true },
-          doomsdayslot: { cost: 18000, wave: 145, name: "Doomsday Slot", color: "#f43f5e", isSlot: true },
-          doubleornothing: { cost: 25000, wave: 150, name: "Double or Nothing", color: "#ffffff" }
-        };
-
-        const config = ticketConfigs[type];
+        const config = SCRATCHER_TICKET_CONFIGS[type];
         if (!config) return;
 
         if (!isRestore) {
@@ -6950,7 +7043,15 @@ default: return ``;
         document.body.style.overflow = "hidden"; document.body.style.touchAction = "none";
         
         document.getElementById("scratcher-menu-ui").classList.add("hidden");
-        document.getElementById("scratcher-play-board").classList.remove("hidden");
+        const board = document.getElementById("scratcher-play-board");
+        if (board) {
+          board.classList.remove("hidden");
+          if (!config.isSlot) {
+            board.style.overflowY = "hidden";
+          } else {
+            board.style.overflowY = "auto";
+          }
+        }
 
         const container = document.getElementById("scratcher-play-content");
         
@@ -6972,15 +7073,7 @@ default: return ``;
 
         container.innerHTML = getScratcherPlayHTML(type, config);
 
-        // Add dynamically generated back button group
-        const btnGroupHTML = `
-          <div id="scratcher-result-${type}" class="text-xl font-black mt-4 h-8 text-center transition-all leading-tight"></div>
-          <div class="flex gap-2 w-full mt-4 hidden animate-pulse" id="btn-group-${type}">
-            <button class="btn flex-1 !bg-gray-800 !text-white" onclick="resetScratcher()">BACK</button>
-            <button class="btn flex-1" style="background-color: ${config.color}; color: #000;" onclick="buyScratcherTicket('${type}')">AGAIN</button>
-          </div>
-        `;
-        container.insertAdjacentHTML("beforeend", btnGroupHTML);
+        // Claim buttons and result text are now natively part of getScratcherPlayHTML template.
 
         if (config.isSlot) {
           initSlotMachinePlay(type, config, isRestore);
@@ -7030,6 +7123,15 @@ default: return ``;
           canvas.style.opacity = "1";
           canvas.style.pointerEvents = "auto";
         }
+        
+        setTimeout(() => {
+          for (let i = 0; i < circleCount; i++) {
+            const symEl = document.getElementById(`sc-sym-${type}-${i}`);
+            if (symEl) {
+              symEl.classList.remove("opacity-0");
+            }
+          }
+        }, 50);
       };
 
       function initSlotMachinePlay(type, config, isRestore) {
@@ -7118,7 +7220,12 @@ default: return ``;
           const covers = activePlayUI.querySelectorAll(".scratch-cover");
           const coinSizeLvl = saveData.upgrades.scratcherSize || 0;
           const coinStrengthLvl = saveData.upgrades.scratcherStrength || 0;
-          const brushRadius = 12 + coinSizeLvl * 6;
+          
+          const config = SCRATCHER_TICKET_CONFIGS[currentScratcherType];
+          let waveFactor = 1.0;
+          if (config && config.wave) {
+            waveFactor = Math.max(0.25, 1.0 - (config.wave - 5) * 0.005);
+          }
           
           let typeFactor = 0.2;
           if (currentScratcherType === "twowin") typeFactor = 1.0;
@@ -7126,7 +7233,8 @@ default: return ``;
           if (currentScratcherType === "tree") typeFactor = 0.25;
           if (currentScratcherType === "matcher") typeFactor = 0.15;
           
-          let brushAlpha = (0.15 + coinStrengthLvl * 0.17) * typeFactor;
+          const brushRadius = Math.max(5, Math.round((12 + coinSizeLvl * 6) * waveFactor));
+          let brushAlpha = (0.15 + coinStrengthLvl * 0.17) * typeFactor * waveFactor;
           
           covers.forEach((el) => {
             const idx = parseInt(el.getAttribute("data-idx"));
@@ -7169,11 +7277,18 @@ default: return ``;
         window.addEventListener(
           "touchstart",
           (e) => {
-            if (
+            const isScratchTarget = e.target.closest(".scratch-circle") ||
+                                    e.target.closest(".scratch-box") ||
+                                    e.target.tagName === "CANVAS";
+            if (scratcherActive && isScratchTarget) {
+              e.preventDefault();
+              isDragging = true;
+            } else if (
               e.target.closest(".scratch-circle") ||
               e.target.closest(".scratch-box")
-            )
+            ) {
               isDragging = true;
+            }
           },
           { passive: false },
         );
@@ -7181,15 +7296,17 @@ default: return ``;
         window.addEventListener(
           "touchmove",
           (e) => {
-            if (
-              isDragging &&
-              scratcherActive &&
-              (e.target.closest(".scratch-circle") ||
-                e.target.closest(".scratch-box"))
-            ) {
+            if (scratcherActive && e.target.closest("#scratcher-play-board")) {
               e.preventDefault();
-              if (e.touches.length > 0)
+              if (
+                isDragging &&
+                e.touches.length > 0 &&
+                (e.target.closest(".scratch-circle") ||
+                  e.target.closest(".scratch-box") ||
+                  e.target.tagName === "CANVAS")
+              ) {
                 handleScratchMove(e.touches[0].clientX, e.touches[0].clientY);
+              }
             }
           },
           { passive: false },
@@ -7635,12 +7752,20 @@ default: return ``;
         }
         const btnGrp = document.getElementById(`btn-group-${type}`);
         if (btnGrp) btnGrp.classList.remove("hidden");
+
+        const board = document.getElementById("scratcher-play-board");
+        if (board) {
+          board.style.overflowY = "auto";
+        }
       }
 
       window.resetScratcher = () => {
         document.body.style.overflow = ""; document.body.style.touchAction = "";
         const board = document.getElementById("scratcher-play-board");
-        if (board) board.classList.add("hidden");
+        if (board) {
+          board.classList.add("hidden");
+          board.style.overflowY = "auto";
+        }
         document.getElementById("scratcher-menu-ui").classList.remove("hidden");
       };
 
@@ -12429,6 +12554,7 @@ class TheBoss extends ColossalBoss {
           el.addEventListener("mouseup", () => (isDragging = false));
           el.addEventListener("mousemove", (e) => {
             if (!isDragging) return;
+            if (scratcherActive && el.id === "scratcher-play-board") return;
             e.preventDefault();
             const currentPos = isVertical
               ? e.pageY - el.offsetTop
@@ -12443,6 +12569,41 @@ class TheBoss extends ColossalBoss {
       setupDragScroll(".hide-scrollbar", false);
 
       // MINIGAMES_CONFIG is declared globally at the top of the script block
+
+      function getPrecedingEnemyForWave(wave) {
+        const threats = [
+          { wave: 1, type: "normal" },
+          { wave: 3, type: "stinger" },
+          { wave: 5, type: "bouncer" },
+          { wave: 8, type: "splitter" },
+          { wave: 10, type: "the-boss" },
+          { wave: 12, type: "phantom" },
+          { wave: 15, type: "weaver" },
+          { wave: 18, type: "juggernaut" },
+          { wave: 20, type: "gemini" },
+          { wave: 22, type: "cloaker" },
+          { wave: 25, type: "sapper" },
+          { wave: 28, type: "warden" },
+          { wave: 30, type: "saw" },
+          { wave: 32, type: "pulsar" },
+          { wave: 35, type: "kamikaze" },
+          { wave: 38, type: "trojan" },
+          { wave: 40, type: "mimic" },
+          { wave: 42, type: "mirror" },
+          { wave: 45, type: "magnet" },
+          { wave: 48, type: "shifter" },
+          { wave: 50, type: "chronomancer" },
+          { wave: 55, type: "empleech" },
+          { wave: 65, type: "phalanx" },
+          { wave: 75, type: "glitch" },
+          { wave: 85, type: "parasite" },
+          { wave: 95, type: "doomsday" },
+          { wave: 100, type: "omega" }
+        ];
+        const matching = threats.filter(t => t.wave < wave);
+        if (matching.length === 0) return "normal";
+        return matching[matching.length - 1].type;
+      }
 
       function renderMinigameHub() {
         document.getElementById("minigame-flux").innerText = saveData.flux;
@@ -12467,31 +12628,44 @@ class TheBoss extends ColossalBoss {
             }
           }
 
+          const enemyType = getPrecedingEnemyForWave(game.wave);
+          const enemyIconHtml = getShapeHTMLForEnemy(enemyType);
+
           if (!isUnlocked) {
             row.style.borderLeftColor = "#ef4444";
             row.classList.add("opacity-40");
             row.innerHTML = `
-              <div class="upgrade-info">
-                <h3 style="color: #ef4444">
-                  ${game.name}
-                  <span class="lvl-badge !bg-red-500/20 !text-red-400 !border-red-500/30 ml-2">LOCKED</span>
-                </h3>
-                <p class="text-xs text-gray-500 mt-1">${game.desc}</p>
-                <div class="unlock-hint mt-2 text-red-500 font-bold text-[10px] uppercase tracking-wider">Reach Wave ${game.wave} to unlock</div>
+              <div class="flex items-center gap-4 flex-grow">
+                <div class="w-12 h-12 flex items-center justify-center bg-gray-900/60 border border-red-500/20 rounded-lg p-1.5 flex-shrink-0">
+                  ${enemyIconHtml}
+                </div>
+                <div class="upgrade-info flex-grow">
+                  <h3 style="color: #ef4444">
+                    ${game.name}
+                    <span class="lvl-badge !bg-red-500/20 !text-red-400 !border-red-500/30 ml-2">LOCKED</span>
+                  </h3>
+                  <p class="text-xs text-gray-500 mt-1">${game.desc}</p>
+                  <div class="unlock-hint mt-2 text-red-500 font-bold text-[10px] uppercase tracking-wider">Reach Wave ${game.wave} to unlock</div>
+                </div>
               </div>
               <button class="btn btn-buy flex-shrink-0 !bg-red-950/20 !text-red-400 !border-red-500/30 text-sm" disabled>LOCKED</button>
             `;
           } else {
             row.style.borderLeftColor = game.color;
             row.innerHTML = `
-              <div class="upgrade-info">
-                <h3 style="color: ${game.color}; text-shadow: 0 0 10px ${game.color}30">
-                  ${game.name}
-                  <span class="text-xs ml-2">${starsHtml}</span>
-                </h3>
-                <p class="text-xs text-gray-400 mt-1">${game.desc}</p>
-                <div class="text-[10px] text-gray-500 font-bold uppercase mt-2">
-                  HIGH SCORE: <span class="text-white text-xs">${mgData.highScore}</span>
+              <div class="flex items-center gap-4 flex-grow">
+                <div class="w-12 h-12 flex items-center justify-center bg-gray-900/60 border border-white/5 rounded-lg p-1.5 flex-shrink-0" style="border-color: ${game.color}20">
+                  ${enemyIconHtml}
+                </div>
+                <div class="upgrade-info flex-grow">
+                  <h3 style="color: ${game.color}; text-shadow: 0 0 10px ${game.color}30">
+                    ${game.name}
+                    <span class="text-xs ml-2">${starsHtml}</span>
+                  </h3>
+                  <p class="text-xs text-gray-400 mt-1">${game.desc}</p>
+                  <div class="text-[10px] text-gray-500 font-bold uppercase mt-2">
+                    HIGH SCORE: <span class="text-white text-xs">${mgData.highScore}</span>
+                  </div>
                 </div>
               </div>
               <button class="btn btn-buy flex-shrink-0" style="background: ${game.color}; color: #000; box-shadow: 0 0 15px ${game.color}60;">PLAY</button>
@@ -12673,8 +12847,8 @@ class TheBoss extends ColossalBoss {
         handlePointerDown(e) {
           if (this.isGameOver) return;
           const rect = this.canvas.getBoundingClientRect();
-          const mouseX = e.clientX - rect.left;
-          const mouseY = e.clientY - rect.top;
+          const mouseX = (e.clientX - rect.left) * (this.width / rect.width);
+          const mouseY = (e.clientY - rect.top) * (this.height / rect.height);
 
           let hit = false;
           for (let i = this.orbs.length - 1; i >= 0; i--) {
@@ -12858,8 +13032,8 @@ class TheBoss extends ColossalBoss {
         handlePointerDown(e) {
           if (this.phase !== "input" || this.isGameOver) return;
           const rect = this.canvas.getBoundingClientRect();
-          const mouseX = e.clientX - rect.left;
-          const mouseY = e.clientY - rect.top;
+          const mouseX = (e.clientX - rect.left) * (this.width / rect.width);
+          const mouseY = (e.clientY - rect.top) * (this.height / rect.height);
 
           const cx = this.width / 2;
           const cy = this.height / 2;
@@ -13008,6 +13182,8 @@ class TheBoss extends ColossalBoss {
             if (isActive) {
               this.ctx.shadowBlur = 20;
               this.ctx.shadowColor = q.color;
+            } else {
+              this.ctx.shadowBlur = 0;
             }
             
             this.ctx.fill();
@@ -13032,8 +13208,8 @@ class TheBoss extends ColossalBoss {
         handlePointerDown(e) {
           if (this.phase !== "input" || this.isGameOver) return;
           const rect = this.canvas.getBoundingClientRect();
-          const mouseX = e.clientX - rect.left;
-          const mouseY = e.clientY - rect.top;
+          const mouseX = (e.clientX - rect.left) * (this.width / rect.width);
+          const mouseY = (e.clientY - rect.top) * (this.height / rect.height);
 
           const cx = this.width / 2;
           const cy = this.height / 2;
@@ -13068,7 +13244,7 @@ class TheBoss extends ColossalBoss {
                 this.score = this.maxStreak * 30;
                 this.addSequenceItem();
                 this.phase = "show";
-                setTimeout(() => this.startPlayback(), 800);
+                setTimeout(() => this.startPlayback(), 1250);
               }
             }
           }
@@ -13331,9 +13507,14 @@ class TheBoss extends ColossalBoss {
           });
           this.ctx.globalAlpha = 1.0;
         }
+        handlePointerDown(e) {
+          const rect = this.canvas.getBoundingClientRect();
+          const mouseX = (e.clientX - rect.left) * (this.width / rect.width);
+          this.paddle.x = Math.max(0, Math.min(this.width - this.paddle.w, mouseX - this.paddle.w / 2));
+        }
         handlePointerMove(e) {
           const rect = this.canvas.getBoundingClientRect();
-          const mouseX = e.clientX - rect.left;
+          const mouseX = (e.clientX - rect.left) * (this.width / rect.width);
           this.paddle.x = Math.max(0, Math.min(this.width - this.paddle.w, mouseX - this.paddle.w / 2));
         }
         endGame() {
@@ -13411,6 +13592,30 @@ class TheBoss extends ColossalBoss {
             this.nextDir = { x: -1, y: 0 };
           } else if ((key === "arrowright" || key === "d") && this.dir.x === 0) {
             this.nextDir = { x: 1, y: 0 };
+          }
+        }
+        handlePointerDown(e) {
+          if (this.isGameOver || this.snake.length === 0) return;
+          const rect = this.canvas.getBoundingClientRect();
+          const px = (e.clientX - rect.left) * (this.width / rect.width);
+          const py = (e.clientY - rect.top) * (this.height / rect.height);
+          
+          const cellWidth = this.width / this.gridCols;
+          const cellHeight = this.height / this.gridRows;
+          
+          const head = this.snake[0];
+          const headX = (head.x + 0.5) * cellWidth;
+          const headY = (head.y + 0.5) * cellHeight;
+          
+          const dx = px - headX;
+          const dy = py - headY;
+          
+          if (this.dir.x !== 0) {
+            if (dy < 0) this.nextDir = { x: 0, y: -1 };
+            else if (dy > 0) this.nextDir = { x: 0, y: 1 };
+          } else if (this.dir.y !== 0) {
+            if (dx < 0) this.nextDir = { x: -1, y: 0 };
+            else if (dx > 0) this.nextDir = { x: 1, y: 0 };
           }
         }
         update(dt) {
@@ -14475,6 +14680,17 @@ class TheBoss extends ColossalBoss {
           minigameCtx.stroke();
           minigameCtx.shadowBlur = 0;
         }
+        handlePointerDown(e) {
+          if (this.isGameOver) return;
+          const rect = minigameCanvas.getBoundingClientRect();
+          const px = (e.clientX - rect.left) * (minigameCanvas.width / rect.width);
+          const py = (e.clientY - rect.top) * (minigameCanvas.height / rect.height);
+          
+          const paddleX = minigameCanvas.width / 2;
+          const paddleY = minigameCanvas.height - 80;
+          
+          this.paddleAngle = Math.atan2(py - paddleY, px - paddleX);
+        }
         handlePointerMove(e) {
           if (this.isGameOver) return;
           const rect = minigameCanvas.getBoundingClientRect();
@@ -14647,6 +14863,7 @@ class TheBoss extends ColossalBoss {
         lastMinigameTime = 0;
 
         pauseBtn.classList.add("hidden");
+        document.getElementById("btn-settings")?.classList.add("hidden");
 
         const overlay = document.getElementById("minigame-overlay");
         overlay.classList.remove("hidden");
@@ -14717,10 +14934,23 @@ class TheBoss extends ColossalBoss {
       }
 
       window.confirmQuitMinigame = function() {
-        if (confirm("Are you sure you want to quit? You will lose any pending rewards for this play session.")) {
+        if (currentMinigame) {
+          currentMinigame.isPaused = true;
+        }
+        document.getElementById("minigame-confirm-dialog")?.classList.remove("hidden");
+      }
+
+      window.confirmQuitMinigameAction = function(shouldQuit) {
+        document.getElementById("minigame-confirm-dialog")?.classList.add("hidden");
+        if (shouldQuit) {
           if (currentMinigame) {
             currentMinigame.isGameOver = true;
             endMinigame(0, 0, "MISSION ABORTED");
+          }
+        } else {
+          if (currentMinigame) {
+            currentMinigame.isPaused = false;
+            lastMinigameTime = 0; // Prevent delta spike
           }
         }
       }
@@ -14753,6 +14983,7 @@ class TheBoss extends ColossalBoss {
         startBtn.onclick = () => {
           screenMsg.classList.add("hidden");
           document.getElementById("minigame-overlay").classList.add("hidden");
+          document.getElementById("btn-settings")?.classList.remove("hidden");
           toggleModal("minigame-modal", true);
         };
 
